@@ -1,0 +1,30 @@
+[package]
+name = "normpath"
+version = "0.1.0"
+authors = ["dylni"]
+edition = "2018"
+exclude = [".*", "/rustfmt.toml", "/tests"]
+description = """
+More reliable path manipulation
+"""
+repository = "https://github.com/dylni/normpath"
+readme = "README.md"
+keywords = ["absolute", "canonicalize", "path", "normalize", "windows"]
+categories = ["command-line-interface", "filesystem", "os"]
+license = "MIT OR Apache-2.0"
+
+[package.metadata.docs.rs]
+rustdoc-args = [
+    "--extern-html-root-url", "std=https://doc.rust-lang.org",
+    "-Zunstable-options",
+]
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["fileapi"] }
+
+[dev-dependencies]
+rustversion = "1.0"
+tempfile = "3.1"
+
+[target.'cfg(not(windows))'.dev-dependencies]
+libc = "0.2"
