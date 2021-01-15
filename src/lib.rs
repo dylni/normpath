@@ -57,6 +57,10 @@
 //! [`PathBuf::pop`]: ::std::path::PathBuf::pop
 //! [`PathBuf::push`]: ::std::path::PathBuf::push
 
+// Only require a nightly compiler when building documentation for docs.rs.
+// This is a private option that should not be used.
+// https://github.com/rust-lang/docs.rs/issues/147#issuecomment-389544407
+#![cfg_attr(normpath_docs_rs, feature(doc_cfg))]
 #![warn(unused_results)]
 
 use std::io;
@@ -118,12 +122,16 @@ pub trait PathExt: private::Sealed {
     ///
     /// # Errors
     ///
-    /// Returns an error if `self` cannot be normalized or contains a null
-    /// byte. On Unix, only existing paths can be normalized.
+    /// Returns an error if `self` cannot be normalized or does not exist, even
+    /// on Windows.
+    ///
+    /// This method is designed to give mostly consistent errors on different
+    /// platforms, even when the functions it calls have different behavior. To
+    /// normalize paths that might not exist, use [`normalize_virtually`].
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// # use std::io;
     /// use std::path::Path;
     ///
@@ -141,18 +149,54 @@ pub trait PathExt: private::Sealed {
     ///
     /// [`fs::canonicalize`]: ::std::fs::canonicalize
     /// [`GetFullPathNameW`]: https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfullpathnamew
+    /// [`normalize_virtually`]: Self::normalize_virtually
     /// [rust-lang/rust#42869]: https://github.com/rust-lang/rust/issues/42869
     /// [rust-lang/rust#49342]: https://github.com/rust-lang/rust/issues/49342
     /// [rust-lang/rust#52440]: https://github.com/rust-lang/rust/issues/52440
     /// [prefix]: ::std::path::Prefix
     /// [verbatim]: ::std::path::Prefix::is_verbatim
     fn normalize(&self) -> io::Result<BasePathBuf>;
+
+    /// Equivalent to [`normalize`] but does not access the file system.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if `self` cannot be normalized or contains a null
+    /// byte. Nonexistent paths will not cause an error.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use std::io;
+    /// use std::path::Path;
+    ///
+    /// use normpath::PathExt;
+    ///
+    /// #[cfg(windows)]
+    /// assert_eq!(
+    ///     Path::new(r"X:\foo\baz\test.rs"),
+    ///     Path::new("X:/foo/bar/../baz/test.rs").normalize_virtually()?,
+    /// );
+    /// #
+    /// # Ok::<_, io::Error>(())
+    /// ```
+    ///
+    /// [`normalize`]: Self::normalize
+    #[cfg(any(doc, windows))]
+    #[cfg_attr(normpath_docs_rs, doc(cfg(windows)))]
+    fn normalize_virtually(&self) -> io::Result<BasePathBuf>;
 }
 
 impl PathExt for Path {
     #[inline]
     fn normalize(&self) -> io::Result<BasePathBuf> {
         imp::normalize(self)
+    }
+
+    #[cfg(any(doc, windows))]
+    #[inline]
+    fn normalize_virtually(&self) -> io::Result<BasePathBuf> {
+        imp::normalize_virtually(self)
     }
 }
 

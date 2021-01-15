@@ -62,7 +62,10 @@ fn test_unc_absolute() {
 
     assert_eq!(
         "normpath: partial UNC prefixes are invalid",
-        Path::new(r"\\server").normalize().unwrap_err().to_string(),
+        Path::new(r"\\server")
+            .normalize_virtually()
+            .unwrap_err()
+            .to_string(),
     );
 }
 

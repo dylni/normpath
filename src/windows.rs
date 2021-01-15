@@ -61,7 +61,9 @@ fn normalize_verbatim(path: &Path) -> BasePathBuf {
     BasePathBuf(OsString::from_wide(&path))
 }
 
-pub(super) fn normalize(initial_path: &Path) -> io::Result<BasePathBuf> {
+pub(super) fn normalize_virtually(
+    initial_path: &Path,
+) -> io::Result<BasePathBuf> {
     // [GetFullPathNameW] always converts separators.
     let (mut wide_path, path) = convert_separators(initial_path);
 
@@ -122,6 +124,10 @@ pub(super) fn normalize(initial_path: &Path) -> io::Result<BasePathBuf> {
         }
         break Ok(BasePathBuf(OsString::from_wide(&buffer)));
     }
+}
+
+pub(super) fn normalize(path: &Path) -> io::Result<BasePathBuf> {
+    path.metadata().and_then(|_| normalize_virtually(path))
 }
 
 fn get_prefix(base: &BasePath) -> PrefixComponent<'_> {

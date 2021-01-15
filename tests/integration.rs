@@ -1,7 +1,7 @@
+use std::convert::TryInto;
 use std::env;
 use std::fs::File;
 use std::io;
-use std::os::raw::c_int;
 use std::path::Path;
 
 use normpath::BasePath;
@@ -12,24 +12,23 @@ use tempfile::tempdir;
 #[macro_use]
 mod common;
 
-const ERROR_INVALID_NAME: c_int = {
-    #[cfg(windows)]
-    {
-        123
-    }
-    #[cfg(not(windows))]
-    {
-        use libc::ENOENT;
-
-        ENOENT
-    }
-};
+#[cfg(not(windows))]
+use libc::ENOENT as ERROR_INVALID_NAME;
+#[cfg(windows)]
+use winapi::shared::winerror::ERROR_INVALID_NAME;
 
 #[test]
 fn test_empty() -> io::Result<()> {
     assert_eq!(
-        Some(ERROR_INVALID_NAME),
-        Path::new("").normalize().unwrap_err().raw_os_error(),
+        Some(Ok(ERROR_INVALID_NAME)),
+        common::normalize("")
+            .unwrap_err()
+            .raw_os_error()
+            .map(TryInto::try_into),
+    );
+    assert_eq!(
+        io::ErrorKind::NotFound,
+        Path::new("").normalize().unwrap_err().kind(),
     );
 
     let base = env::current_dir()?;

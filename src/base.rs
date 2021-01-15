@@ -283,6 +283,14 @@ impl BasePath {
         self.as_path().normalize()
     }
 
+    /// Equivalent to [`PathExt::normalize_virtually`].
+    #[cfg(any(doc, windows))]
+    #[cfg_attr(normpath_docs_rs, doc(cfg(windows)))]
+    #[inline]
+    pub fn normalize_virtually(&self) -> io::Result<BasePathBuf> {
+        self.as_path().normalize_virtually()
+    }
+
     fn check_parent(&self) -> Result<(), ParentError> {
         self.components()
             .next_back()

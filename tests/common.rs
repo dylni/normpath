@@ -8,6 +8,7 @@ use std::io;
 use std::path::Path;
 
 use normpath::BasePath;
+use normpath::BasePathBuf;
 use normpath::PathExt;
 
 // https://github.com/rust-lang/rust/issues/76483
@@ -33,6 +34,21 @@ where
     assert_eq!(Wrapper(expected), result.as_ref().map(AsRef::as_ref));
 }
 
+pub(crate) fn normalize<P>(path: P) -> io::Result<BasePathBuf>
+where
+    P: AsRef<Path>,
+{
+    let path = path.as_ref();
+    #[cfg(windows)]
+    {
+        path.normalize_virtually()
+    }
+    #[cfg(not(windows))]
+    {
+        path.normalize()
+    }
+}
+
 #[rustversion::attr(since(1.46.0), track_caller)]
 pub(crate) fn test(path: &str, joined_path: &str, normalized_path: &str) {
     let joined_path = Path::new(joined_path);
@@ -43,8 +59,8 @@ pub(crate) fn test(path: &str, joined_path: &str, normalized_path: &str) {
             .unwrap();
     assert_eq!(joined_path, base.join(path));
 
-    assert_eq(normalized_path, joined_path.normalize());
-    assert_eq(normalized_path, normalized_path.normalize());
+    assert_eq(normalized_path, normalize(joined_path));
+    assert_eq(normalized_path, normalize(normalized_path));
 }
 
 macro_rules! test {

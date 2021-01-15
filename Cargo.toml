@@ -14,7 +14,9 @@ categories = ["command-line-interface", "filesystem", "os"]
 license = "MIT OR Apache-2.0"
 
 [package.metadata.docs.rs]
+rustc-args = ["--cfg", "normpath_docs_rs"]
 rustdoc-args = [
+    "--cfg", "normpath_docs_rs",
     "--extern-html-root-url", "std=https://doc.rust-lang.org",
     "-Zunstable-options",
 ]
