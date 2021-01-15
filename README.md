@@ -16,7 +16,7 @@ Add the following lines to your "Cargo.toml" file:
 
 ```toml
 [dependencies]
-normpath = "0.1"
+normpath = "0.2"
 ```
 
 See the [documentation] for available functionality and examples.
