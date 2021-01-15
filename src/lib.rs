@@ -57,7 +57,6 @@
 //! [`PathBuf::pop`]: ::std::path::PathBuf::pop
 //! [`PathBuf::push`]: ::std::path::PathBuf::push
 
-#![doc(html_root_url = "https://docs.rs/normpath/*")]
 #![warn(unused_results)]
 
 use std::io;
