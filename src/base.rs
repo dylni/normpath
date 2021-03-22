@@ -683,3 +683,26 @@ impl From<BasePathBuf> for PathBuf {
         value.into_path_buf()
     }
 }
+
+#[cfg(feature = "print_bytes")]
+mod print_bytes {
+    use print_bytes::Bytes;
+    use print_bytes::ToBytes;
+
+    use super::BasePath;
+    use super::BasePathBuf;
+
+    impl ToBytes for BasePath {
+        #[inline]
+        fn to_bytes(&self) -> Bytes<'_> {
+            self.0.to_bytes()
+        }
+    }
+
+    impl ToBytes for BasePathBuf {
+        #[inline]
+        fn to_bytes(&self) -> Bytes<'_> {
+            (**self).to_bytes()
+        }
+    }
+}

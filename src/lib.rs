@@ -14,6 +14,17 @@
 //! - [`BasePathBuf::pop`] (replaces [`PathBuf::pop`])
 //! - [`BasePathBuf::push`] (replaces [`PathBuf::push`])
 //!
+//! # Features
+//!
+//! These features are optional and can be enabled or disabled in a
+//! "Cargo.toml" file.
+//!
+//! ### Optional Features
+//!
+//! - **print_bytes** -
+//!   Provides implementations of [`print_bytes::ToBytes`] for [`BasePath`] and
+//!   [`BasePathBuf`].
+//!
 //! # Sponsorship
 //!
 //! If this crate has been useful for your project, let me know with a
