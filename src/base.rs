@@ -622,7 +622,7 @@ impl BasePathBuf {
     where
         P: AsRef<Path>,
     {
-        imp::push(self, path.as_ref())
+        imp::push(self, path.as_ref());
     }
 }
 
