@@ -22,8 +22,12 @@
 //! ### Optional Features
 //!
 //! - **print_bytes** -
-//!   Provides implementations of [`print_bytes::ToBytes`] for [`BasePath`] and
-//!   [`BasePathBuf`].
+//!   Provides implementations of [`print_bytes::ToBytes`] for types defined by
+//!   this crate.
+//!
+//! - **serde** -
+//!   Provides implementations of [`serde::Deserialize`] and
+//!   [`serde::Serialize`] for types defined by this crate.
 //!
 //! # Sponsorship
 //!

@@ -50,3 +50,33 @@ fn test_created() -> io::Result<()> {
 
     Ok(())
 }
+
+#[cfg(feature = "serde")]
+#[test]
+fn test_serde() -> io::Result<()> {
+    use normpath::BasePathBuf;
+
+    // https://doc.rust-lang.org/std/ffi/struct.OsStr.html#examples-2
+    let path = {
+        #[cfg(windows)]
+        {
+            use std::ffi::OsString;
+            use std::os::windows::ffi::OsStringExt;
+
+            OsString::from_wide(&[0x66, 0x66, 0xD800, 0x6F])
+        }
+        #[cfg(not(windows))]
+        {
+            use std::ffi::OsStr;
+            use std::os::unix::ffi::OsStrExt;
+
+            OsStr::from_bytes(&[0x66, 0x66, 0x80, 0x6F]).to_os_string()
+        }
+    };
+
+    let base = BasePathBuf::new(path)?;
+    let bytes = bincode::serialize(&base).unwrap();
+    assert_eq!(base, bincode::deserialize::<BasePathBuf>(&bytes).unwrap());
+
+    Ok(())
+}
