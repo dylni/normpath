@@ -14,6 +14,7 @@ categories = ["command-line-interface", "filesystem", "os"]
 license = "MIT OR Apache-2.0"
 
 [package.metadata.docs.rs]
+all-features = true
 rustc-args = ["--cfg", "normpath_docs_rs"]
 rustdoc-args = [
     "--cfg", "normpath_docs_rs",

@@ -685,6 +685,7 @@ impl From<BasePathBuf> for PathBuf {
 }
 
 #[cfg(feature = "print_bytes")]
+#[cfg_attr(normpath_docs_rs, doc(cfg(feature = "print_bytes")))]
 mod print_bytes {
     use print_bytes::Bytes;
     use print_bytes::ToBytes;
@@ -708,6 +709,7 @@ mod print_bytes {
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(normpath_docs_rs, doc(cfg(feature = "serde")))]
 mod serde {
     use std::ffi::OsString;
 
