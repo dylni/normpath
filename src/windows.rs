@@ -136,7 +136,7 @@ fn get_prefix(base: &BasePath) -> PrefixComponent<'_> {
     } else {
         // Base paths should always have a prefix.
         panic!(
-            "base path is missing a prefix: {}",
+            "base path is missing a prefix: \"{}\"",
             base.as_path().display(),
         );
     }

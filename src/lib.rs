@@ -91,6 +91,10 @@ macro_rules! matches {
     }};
 }
 
+mod base;
+pub use base::BasePath;
+pub use base::BasePathBuf;
+
 mod cmp;
 
 pub mod error;
@@ -98,10 +102,6 @@ pub mod error;
 #[cfg_attr(windows, path = "windows.rs")]
 #[cfg_attr(not(windows), path = "common.rs")]
 mod imp;
-
-mod base;
-pub use base::BasePath;
-pub use base::BasePathBuf;
 
 /// Additional methods added to [`Path`].
 pub trait PathExt: private::Sealed {
