@@ -271,6 +271,15 @@ impl BasePath {
         base
     }
 
+    /// Equivalent to [`PathExt::localize_name`].
+    #[cfg(feature = "localization")]
+    #[cfg_attr(normpath_docs_rs, doc(cfg(feature = "localization")))]
+    #[inline]
+    #[must_use]
+    pub fn localize_name(&self) -> Cow<'_, OsStr> {
+        self.as_path().localize_name()
+    }
+
     /// Equivalent to [`Path::metadata`].
     #[inline]
     pub fn metadata(&self) -> io::Result<Metadata> {

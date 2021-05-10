@@ -14,12 +14,18 @@
 //! - [`BasePathBuf::pop`] (replaces [`PathBuf::pop`])
 //! - [`BasePathBuf::push`] (replaces [`PathBuf::push`])
 //!
+//! Additionally, these methods can be used for other enhancements:
+//! - [`PathExt::localize_name`]
+//!
 //! # Features
 //!
 //! These features are optional and can be enabled or disabled in a
 //! "Cargo.toml" file.
 //!
 //! ### Optional Features
+//!
+//! - **localization** -
+//!   Provides [`PathExt::localize_name`] and [`BasePath::localize_name`].
 //!
 //! - **print_bytes** -
 //!   Provides implementations of [`print_bytes::ToBytes`] for types defined by
@@ -78,7 +84,13 @@
 #![cfg_attr(normpath_docs_rs, feature(doc_cfg))]
 #![warn(unused_results)]
 
+#[cfg(feature = "localization")]
+use std::borrow::Cow;
+#[cfg(feature = "localization")]
+use std::ffi::OsStr;
 use std::io;
+#[cfg(feature = "localization")]
+use std::path::Component;
 use std::path::Path;
 
 mod base;
@@ -93,8 +105,49 @@ pub mod error;
 #[cfg_attr(not(windows), path = "common.rs")]
 mod imp;
 
+#[cfg(feature = "localization")]
+#[cfg(any(target_os = "ios", target_os = "macos"))]
+mod localize;
+
 /// Additional methods added to [`Path`].
 pub trait PathExt: private::Sealed {
+    /// Localizes the last component of this path if possible.
+    ///
+    /// If the path does not exist, the last component is returned without
+    /// localization.
+    ///
+    /// The returned string should only be used for display to users. It will
+    /// be as similar as possible to the name displayed by the system file
+    /// manager for the path. However, nothing should be assumed about the
+    /// result.
+    ///
+    /// # Implementation
+    ///
+    /// Currently, on Mac OS, this method calls
+    /// [`[NSFileManager displayNameAtPath:]`][displayNameAtPath]
+    /// ([rust-lang/rfcs#845]).
+    ///
+    /// However, the implementation is subject to change. This section is only
+    /// informative.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the path ends with a `..` component. In the future, this
+    /// method might also panic for paths ending with `.` components, so they
+    /// should not be given either. They currently cause a platform-dependent
+    /// value to be returned.
+    ///
+    /// You should usually only call this method on [normalized] paths to avoid
+    /// these panics.
+    ///
+    /// [displayNameAtPath]: https://developer.apple.com/documentation/foundation/nsfilemanager/1409751-displaynameatpath
+    /// [normalized]: Self::normalize
+    /// [rust-lang/rfcs#845]: https://github.com/rust-lang/rfcs/issues/845
+    #[cfg(feature = "localization")]
+    #[cfg_attr(normpath_docs_rs, doc(cfg(feature = "localization")))]
+    #[must_use]
+    fn localize_name(&self) -> Cow<'_, OsStr>;
+
     /// Normalizes `self` relative to the current directory.
     ///
     /// # Unix Behavior
@@ -193,6 +246,27 @@ pub trait PathExt: private::Sealed {
 }
 
 impl PathExt for Path {
+    #[cfg(feature = "localization")]
+    #[inline]
+    fn localize_name(&self) -> Cow<'_, OsStr> {
+        let name = self.components().next_back();
+        assert_ne!(
+            Some(Component::ParentDir),
+            name,
+            "path ends with a `..` component: \"{}\"",
+            self.display(),
+        );
+
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
+        if let Some(path) = self.to_str() {
+            return Cow::Owned(localize::name(path).into());
+        }
+        Cow::Borrowed(
+            name.map(Component::as_os_str)
+                .unwrap_or_else(|| OsStr::new("")),
+        )
+    }
+
     #[inline]
     fn normalize(&self) -> io::Result<BasePathBuf> {
         imp::normalize(self)
