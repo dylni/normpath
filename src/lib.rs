@@ -81,16 +81,6 @@
 use std::io;
 use std::path::Path;
 
-macro_rules! matches {
-    ( $value:expr , $($pattern:pat)|+ ) => {{
-        #[allow(clippy::match_like_matches_macro)]
-        match $value {
-            $($pattern)|+ => true,
-            _ => false,
-        }
-    }};
-}
-
 mod base;
 pub use base::BasePath;
 pub use base::BasePathBuf;

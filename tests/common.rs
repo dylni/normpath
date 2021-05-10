@@ -12,7 +12,7 @@ use normpath::BasePathBuf;
 use normpath::PathExt;
 
 // https://github.com/rust-lang/rust/issues/76483
-#[rustversion::attr(since(1.46.0), track_caller)]
+#[track_caller]
 pub(crate) fn assert_eq<P>(expected: &Path, result: io::Result<P>)
 where
     P: AsRef<BasePath>,
@@ -49,7 +49,7 @@ where
     }
 }
 
-#[rustversion::attr(since(1.46.0), track_caller)]
+#[track_caller]
 pub(crate) fn test(path: &str, joined_path: &str, normalized_path: &str) {
     let joined_path = Path::new(joined_path);
     let normalized_path = Path::new(normalized_path);

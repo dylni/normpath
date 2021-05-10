@@ -102,7 +102,7 @@ fn test_complex() {
     tj(r"\\.\foo\bar", "C:a", "C:a");
     tj(r"\\.\foo", r"..\bar", r"\\.\foo\bar");
 
-    #[rustversion::attr(since(1.46.0), track_caller)]
+    #[track_caller]
     fn tj(base: &str, path: &str, joined_path: &str) {
         assert_eq!(
             Path::new(joined_path),
