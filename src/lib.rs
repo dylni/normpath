@@ -140,6 +140,16 @@ pub trait PathExt: private::Sealed {
     /// You should usually only call this method on [normalized] paths to avoid
     /// these panics.
     ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::path::Path;
+    ///
+    /// use normpath::PathExt;
+    ///
+    /// assert_eq!("test.rs", &*Path::new("/foo/bar/test.rs").localize_name());
+    /// ```
+    ///
     /// [displayNameAtPath]: https://developer.apple.com/documentation/foundation/nsfilemanager/1409751-displaynameatpath
     /// [normalized]: Self::normalize
     /// [rust-lang/rfcs#845]: https://github.com/rust-lang/rfcs/issues/845

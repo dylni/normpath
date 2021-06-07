@@ -32,6 +32,7 @@ jobs:
     - run: rustup install ${{ matrix.version }}
     - run: rustup default ${{ matrix.version }}
     - run: cargo test
+    - run: cargo test --features localization
     - run: cargo test --all-features
     - run: cargo test --release
     timeout-minutes: 10
