@@ -160,6 +160,11 @@ pub trait PathExt: private::Sealed {
 
     /// Normalizes `self` relative to the current directory.
     ///
+    /// This method will access the file system to normalize the path. If the
+    /// path might not exist, [`normalize_virtually`] can be used instead, but
+    /// it is only available on Windows. Other platforms require file system
+    /// access to perform normalization.
+    ///
     /// # Unix Behavior
     ///
     /// On Unix, normalization is equivalent to canonicalization.
