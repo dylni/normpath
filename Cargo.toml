@@ -42,4 +42,4 @@ tempfile = "3.1"
 libc = "0.2"
 
 [features]
-localization = ["fruity"]
+localization = ["fruity", "winapi/shellapi"]

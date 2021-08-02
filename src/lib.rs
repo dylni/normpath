@@ -101,13 +101,14 @@ mod cmp;
 
 pub mod error;
 
-#[cfg_attr(windows, path = "windows.rs")]
-#[cfg_attr(not(windows), path = "common.rs")]
-mod imp;
-
 #[cfg(feature = "localization")]
-#[cfg(any(target_os = "ios", target_os = "macos"))]
+#[cfg_attr(windows, path = "windows/localize.rs")]
+#[cfg_attr(not(windows), path = "common/localize/mod.rs")]
 mod localize;
+
+#[cfg_attr(windows, path = "windows/normalize.rs")]
+#[cfg_attr(not(windows), path = "common/normalize.rs")]
+mod normalize;
 
 /// Additional methods added to [`Path`].
 pub trait PathExt: private::Sealed {
@@ -123,9 +124,10 @@ pub trait PathExt: private::Sealed {
     ///
     /// # Implementation
     ///
-    /// Currently, on Mac OS, this method calls
-    /// [`[NSFileManager displayNameAtPath:]`][displayNameAtPath]
-    /// ([rust-lang/rfcs#845]).
+    /// Currently, this method calls:
+    /// - [`[NSFileManager displayNameAtPath:]`][displayNameAtPath] on MacOS
+    ///   ([rust-lang/rfcs#845]).
+    /// - [`SHGetFileInfoW`] on Windows.
     ///
     /// However, the implementation is subject to change. This section is only
     /// informative.
@@ -153,6 +155,7 @@ pub trait PathExt: private::Sealed {
     /// [displayNameAtPath]: https://developer.apple.com/documentation/foundation/nsfilemanager/1409751-displaynameatpath
     /// [normalized]: Self::normalize
     /// [rust-lang/rfcs#845]: https://github.com/rust-lang/rfcs/issues/845
+    /// [`SHGetFileInfoW`]: https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shgetfileinfow
     #[cfg(feature = "localization")]
     #[cfg_attr(normpath_docs_rs, doc(cfg(feature = "localization")))]
     #[must_use]
@@ -264,33 +267,31 @@ impl PathExt for Path {
     #[cfg(feature = "localization")]
     #[inline]
     fn localize_name(&self) -> Cow<'_, OsStr> {
-        let name = self.components().next_back();
+        let name = match self.components().next_back() {
+            Some(name) => name,
+            None => return Cow::Borrowed(OsStr::new("")),
+        };
         assert_ne!(
-            Some(Component::ParentDir),
+            Component::ParentDir,
             name,
             "path ends with a `..` component: \"{}\"",
             self.display(),
         );
 
-        #[cfg(any(target_os = "ios", target_os = "macos"))]
-        if let Some(path) = self.to_str() {
-            return Cow::Owned(localize::name(path).into());
-        }
-        Cow::Borrowed(
-            name.map(Component::as_os_str)
-                .unwrap_or_else(|| OsStr::new("")),
-        )
+        localize::name(self)
+            .map(Cow::Owned)
+            .unwrap_or_else(|| Cow::Borrowed(name.as_os_str()))
     }
 
     #[inline]
     fn normalize(&self) -> io::Result<BasePathBuf> {
-        imp::normalize(self)
+        normalize::normalize(self)
     }
 
     #[cfg(any(doc, windows))]
     #[inline]
     fn normalize_virtually(&self) -> io::Result<BasePathBuf> {
-        imp::normalize_virtually(self)
+        normalize::normalize_virtually(self)
     }
 }
 
