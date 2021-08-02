@@ -30,7 +30,10 @@ pub(super) fn name(path: &Path) -> Option<OsString> {
         return None;
     }
 
+    // SAFETY: This struct was initialized by the syscall.
     let display_name = unsafe { path_info.assume_init() }.szDisplayName;
+    // The display name buffer has a fixed length, so it must be truncated at
+    // the first null character.
     Some(OsString::from_wide(
         display_name.split(|&x| x == 0).next().unwrap(),
     ))
