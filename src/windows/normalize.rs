@@ -143,11 +143,11 @@ fn get_prefix(base: &BasePath) -> PrefixComponent<'_> {
 }
 
 fn push_separator(base: &mut BasePathBuf) {
-    base.replace_with(|mut base| {
-        // Add a separator if necessary.
-        base.push("");
-        base
-    });
+    // Add a separator if necessary.
+    let s = base.0.to_string_lossy();
+    if !s.ends_with('\\') && !s.ends_with(':') {
+        base.0.push(OsString::from(r"\"));
+    }
 }
 
 pub(super) fn push(base: &mut BasePathBuf, initial_path: &Path) {
