@@ -10,6 +10,7 @@ fn test_edge_cases() {
 
     // https://github.com/dylni/normpath/pull/4#issuecomment-938596259
     tj(r"X:\X:", r"ABC", r"X:\X:\ABC");
+    tj(r"\\?\X:\X:", r"ABC", r"\\?\X:\X:\ABC");
 
     #[track_caller]
     fn tj(base: &str, path: &str, joined_path: &str) {
