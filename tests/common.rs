@@ -15,7 +15,7 @@ use normpath::PathExt;
 #[rustversion::attr(since(1.46.0), track_caller)]
 pub(crate) fn assert_eq<P>(expected: &Path, result: io::Result<P>)
 where
-    P: AsRef<BasePath>,
+    P: AsRef<Path>,
 {
     struct Wrapper<'a>(&'a Path);
 
@@ -25,9 +25,11 @@ where
         }
     }
 
-    impl PartialEq<Result<&BasePath, &io::Error>> for Wrapper<'_> {
-        fn eq(&self, other: &Result<&BasePath, &io::Error>) -> bool {
-            other.map(|x| self.0 == x).unwrap_or(false)
+    impl PartialEq<Result<&Path, &io::Error>> for Wrapper<'_> {
+        fn eq(&self, other: &Result<&Path, &io::Error>) -> bool {
+            other
+                .map(|x| self.0.as_os_str() == x.as_os_str())
+                .unwrap_or(false)
         }
     }
 
