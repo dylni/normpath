@@ -2,6 +2,8 @@
 
 #![cfg(windows)]
 
+use std::env;
+use std::io;
 use std::path::Path;
 
 use normpath::PathExt;
@@ -127,4 +129,20 @@ fn test_edge_cases() {
     // test!(r"/??/X:/ABC/DEF", r"\??\X:/ABC/DEF", SAME);
     // test!(r"/??/X:/", r"\??\X:/", SAME);
     // test!(r"/??/X:", r"\??\X:", SAME);
+}
+
+// https://github.com/dylni/normpath/issues/5
+#[test]
+fn test_windows_bug() -> io::Result<()> {
+    let initial_current_dir = env::current_dir()?;
+
+    for current_dir in &[r"C:\", r"C:\Users"] {
+        let current_dir = Path::new(current_dir);
+        env::set_current_dir(current_dir)?;
+        common::assert_eq(current_dir, env::current_dir());
+
+        common::assert_eq(current_dir, Path::new(".").normalize());
+    }
+
+    env::set_current_dir(initial_current_dir)
 }
