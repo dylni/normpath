@@ -154,7 +154,6 @@ impl BasePath {
 
     /// Equivalent to [`Path::components`].
     #[inline]
-    #[must_use]
     pub fn components(&self) -> Components<'_> {
         self.as_path().components()
     }
