@@ -2,7 +2,8 @@
 name = "normpath"
 version = "0.3.2"
 authors = ["dylni"]
-edition = "2018"
+edition = "2021"
+rust-version = "1.57.0"
 exclude = [".*", "/rustfmt.toml", "/tests"]
 description = """
 More reliable path manipulation

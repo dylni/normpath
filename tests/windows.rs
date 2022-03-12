@@ -136,7 +136,7 @@ fn test_edge_cases() {
 fn test_windows_bug() -> io::Result<()> {
     let initial_current_dir = env::current_dir()?;
 
-    for current_dir in &[r"C:\", r"C:\Users"] {
+    for current_dir in [r"C:\", r"C:\Users"] {
         let current_dir = Path::new(current_dir);
         env::set_current_dir(current_dir)?;
         common::assert_eq(current_dir, env::current_dir());

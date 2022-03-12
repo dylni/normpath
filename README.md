@@ -23,7 +23,17 @@ See the [documentation] for available functionality and examples.
 
 ## Rust version support
 
-The minimum supported Rust toolchain version is currently Rust 1.46.
+The minimum supported Rust toolchain version is currently Rust 1.57.0.
+
+Minor version updates may increase this version requirement. However, the
+previous two Rust releases will always be supported. If the minimum Rust
+version must not be increased, use a tilde requirement to prevent updating this
+crate's minor version:
+
+```toml
+[dependencies]
+normpath = "~0.3"
+```
 
 ## License
 

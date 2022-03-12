@@ -19,7 +19,7 @@ use super::BasePathBuf;
 
 macro_rules! static_assert {
     ( $condition:expr ) => {
-        const _: () = [()][!$condition as usize];
+        const _: () = assert!($condition, "static assertion failed");
     };
 }
 
@@ -81,7 +81,7 @@ pub(super) fn normalize_virtually(
             return Ok(normalize_verbatim(initial_path));
         }
         Some(Component::RootDir)
-            if wide_path.len() >= 3 && wide_path[1] == SEPARATOR =>
+            if matches!(*wide_path, [_, SEPARATOR, _, ..]) =>
         {
             return Err(io::Error::new(
                 io::ErrorKind::NotFound,
@@ -161,27 +161,11 @@ fn get_prefix(base: &BasePath) -> PrefixComponent<'_> {
 }
 
 fn push_separator(base: &mut BasePathBuf) {
-    // https://github.com/rust-lang/rust/issues/89658
-    /*
     base.replace_with(|mut base| {
         // Add a separator if necessary.
         base.push("");
         base
     });
-    */
-
-    const SEPARATOR: &str = "\\";
-
-    if let Some(Component::Prefix(prefix)) = base.components().next_back() {
-        if matches!(prefix.kind(), Prefix::Disk(_) | Prefix::VerbatimDisk(_)) {
-            return;
-        }
-    }
-    // This inefficient implementation must be used until the above issue is
-    // resolved.
-    if !base.0.to_string_lossy().ends_with(SEPARATOR) {
-        base.0.push(SEPARATOR);
-    }
 }
 
 pub(super) fn push(base: &mut BasePathBuf, initial_path: &Path) {
