@@ -55,5 +55,5 @@ pub(super) fn name(path: &str) -> String {
     // SAFETY: This struct is dropped by the end of this method.
     let path = unsafe { NSString::from_str_no_copy(path) };
 
-    unsafe { objc_retain(&objc_msgSend(&obj, sel, path)) }.to_string()
+    unsafe { objc_retain(objc_msgSend(&obj, sel, path)) }.to_string()
 }

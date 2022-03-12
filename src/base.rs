@@ -466,7 +466,7 @@ impl ToOwned for BasePath {
 
     #[inline]
     fn to_owned(&self) -> Self::Owned {
-        BasePathBuf(self.0.to_os_string())
+        BasePathBuf(self.0.to_owned())
     }
 }
 

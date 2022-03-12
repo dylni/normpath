@@ -210,7 +210,7 @@ pub(super) fn push(base: &mut BasePathBuf, initial_path: &Path) {
             }
         }
         Some(Component::RootDir) => {
-            let mut buffer = get_prefix(base).as_os_str().to_os_string();
+            let mut buffer = get_prefix(base).as_os_str().to_owned();
             buffer.push(path);
             *base = BasePathBuf(buffer);
             return;

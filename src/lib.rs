@@ -28,12 +28,12 @@
 //!   Provides [`PathExt::localize_name`] and [`BasePath::localize_name`].
 //!
 //! - **print_bytes** -
-//!   Provides implementations of [`print_bytes::ToBytes`] for types defined by
-//!   this crate.
+//!   Provides implementations of [`print_bytes::ToBytes`] for [`BasePath`] and
+//!   [`BasePathBuf`].
 //!
 //! - **serde** -
 //!   Provides implementations of [`serde::Deserialize`] and
-//!   [`serde::Serialize`] for types defined by this crate.
+//!   [`serde::Serialize`] for [`BasePath`] and [`BasePathBuf`].
 //!
 //! # Sponsorship
 //!

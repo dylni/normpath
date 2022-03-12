@@ -70,7 +70,7 @@ fn test_serde() -> io::Result<()> {
             use std::ffi::OsStr;
             use std::os::unix::ffi::OsStrExt;
 
-            OsStr::from_bytes(&[0x66, 0x66, 0x80, 0x6F]).to_os_string()
+            OsStr::from_bytes(&[0x66, 0x66, 0x80, 0x6F]).to_owned()
         }
     };
 

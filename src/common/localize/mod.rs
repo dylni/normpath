@@ -5,7 +5,7 @@ use std::path::Path;
 mod macos;
 
 #[cfg_attr(
-    not(all(target_os = "ios", target_os = "macos")),
+    not(any(target_os = "ios", target_os = "macos")),
     allow(unused_variables)
 )]
 pub(super) fn name(path: &Path) -> Option<OsString> {

@@ -33,8 +33,7 @@ fn test_parent() {
 #[should_panic = r#"path ends with a `..` component: "X:\foo\bar\.."#]
 #[test]
 fn test_windows_parent() {
-    let path = r"X:\foo\bar\..";
-    test(path, path);
+    let _ = Path::new(r"X:\foo\bar\..").localize_name();
 }
 
 #[cfg(any(target_os = "ios", target_os = "macos"))]
