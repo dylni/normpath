@@ -3,6 +3,8 @@ name: build
 on:
   pull_request:
   push:
+    branches:
+    - master
   schedule:
   - cron: 0 0 * * FRI
 
@@ -10,31 +12,19 @@ jobs:
   build:
     runs-on: ${{ matrix.platform }}
     steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 10
-    - run: cargo clippy -- -Dwarnings
-    - run: cargo clippy --all-features --tests -- -Dwarnings
-    - run: cargo fmt -- --check
-    timeout-minutes: 5
+    - uses: dylni/build-actions/build@master
+    timeout-minutes: 10
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest]
   test:
     needs: [build]
     runs-on: ${{ matrix.platform }}
-    env:
-      RUSTFLAGS: -Dwarnings
     steps:
-    - uses: actions/checkout@v1
+    - uses: dylni/build-actions/test@master
       with:
-        fetch-depth: 10
-    - run: rustup install ${{ matrix.version }}
-    - run: rustup default ${{ matrix.version }}
-    - run: cargo test
+        version: ${{ matrix.version }}
     - run: cargo test --features localization
-    - run: cargo test --all-features
-    - run: cargo test --release
     timeout-minutes: 10
     strategy:
       matrix:
