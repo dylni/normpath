@@ -132,6 +132,10 @@ pub trait PathExt: private::Sealed {
     /// However, the implementation is subject to change. This section is only
     /// informative.
     ///
+    /// Documentation for `SHGetFileInfoW` has this note:
+    /// > You should call this function from a background thread. Failure to do
+    /// > so could cause the UI to stop responding.
+    ///
     /// # Panics
     ///
     /// Panics if the path ends with a `..` component. In the future, this
