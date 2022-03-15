@@ -52,6 +52,10 @@ parties:
   Programming Language, licensed under the MIT License or the Apache License,
   Version 2.0.
 
+- [src/common/localize/macos/fruity.rs] contains modifications of code from
+  crate [fruity], licensed under the MIT License or the Apache License,
+  Version 2.0.
+
 See those files for more details.
 
 Copies of third-party licenses can be found in [LICENSE-THIRD-PARTY].
@@ -65,8 +69,10 @@ Copies of third-party licenses can be found in [LICENSE-THIRD-PARTY].
 [#74327]: https://github.com/rust-lang/rust/issues/74327
 [COPYRIGHT]: https://github.com/dylni/normpath/blob/master/COPYRIGHT
 [documentation]: https://docs.rs/normpath
+[fruity]: https://crates.io/crates/fruity
 [`fs::canonicalize`]: https://doc.rust-lang.org/std/fs/fn.canonicalize.html
 [LICENSE-APACHE]: https://github.com/dylni/normpath/blob/master/LICENSE-APACHE
 [LICENSE-THIRD-PARTY]: https://github.com/dylni/normpath/blob/master/LICENSE-THIRD-PARTY
 [src/cmp.rs]: https://github.com/dylni/normpath/blob/master/src/cmp.rs
+[src/common/localize/macos/fruity.rs]: https://github.com/dylni/normpath/blob/master/src/common/localize/macos/fruity.rs
 [tests/rust.rs]: https://github.com/dylni/normpath/blob/master/tests/rust.rs

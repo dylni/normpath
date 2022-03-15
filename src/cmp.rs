@@ -12,7 +12,7 @@
 //!   For full authorship information, see the version control history or
 //!   https://thanks.rust-lang.org
 //! - <https://github.com/rust-lang/rust/blob/b1277d04db0dc8009037e872a1be7cdc2bd74a43/COPYRIGHT>
-//! - Modifications copyright (c) 2020 Dylan Iuzzolino
+//! - Modifications copyright (c) 2020 dylni (https://github.com/dylni)
 //! - <https://github.com/dylni/normpath/blob/master/COPYRIGHT>
 
 use std::borrow::Cow;

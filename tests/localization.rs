@@ -16,8 +16,7 @@ fn test_same() {
     test("applications", "/foo/applications/");
     test("applications", "/foo/applications//");
 
-    // TODO: This test is temporarily disabled.
-    // test("test\0.rs", "/foo/bar/test\0.rs");
+    test("test\0.rs", "/foo/bar/test\0.rs");
     if cfg!(unix) {
         test("test\\.rs", "/foo/bar/test\\.rs");
     }

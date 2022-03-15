@@ -23,11 +23,6 @@ rustdoc-args = ["--cfg", "normpath_docs_rs"]
 print_bytes = { version = "0.5", optional = true }
 serde = { version = "1.0", optional = true }
 
-[target.'cfg(any(target_os = "ios", target_os = "macos"))'.dependencies]
-# Requiring an exact version allows this crate to maintain its MSRV:
-# https://github.com/nvzqz/fruity/issues/12
-fruity = { version = "=0.2.0", features = ["foundation"], optional = true }
-
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["fileapi"] }
 
@@ -39,4 +34,4 @@ tempfile = "3.1"
 libc = "0.2"
 
 [features]
-localization = ["fruity", "winapi/shellapi"]
+localization = ["winapi/shellapi"]
