@@ -29,4 +29,4 @@ jobs:
     strategy:
       matrix:
         platform: [macos-latest, ubuntu-latest, windows-latest]
-        version: [1.57.0, stable, nightly]
+        version: [1.57.0, stable, beta, nightly]
