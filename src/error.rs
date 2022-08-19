@@ -1,5 +1,7 @@
 //! The error types defined by this crate.
 
+#![allow(clippy::derive_partial_eq_without_eq)]
+
 use std::error::Error;
 use std::fmt;
 use std::fmt::Display;
@@ -16,8 +18,8 @@ pub struct MissingPrefixError(pub(super) ());
 
 impl Display for MissingPrefixError {
     #[inline]
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
-        "normpath: path is missing a prefix".fmt(formatter)
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        "normpath: path is missing a prefix".fmt(f)
     }
 }
 
@@ -48,9 +50,9 @@ impl MissingPrefixBufError {
 
 impl Display for MissingPrefixBufError {
     #[inline]
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(
-            formatter,
+            f,
             "normpath: path is missing a prefix: {}",
             self.0.display(),
         )
@@ -68,8 +70,8 @@ pub struct ParentError(pub(super) ());
 
 impl Display for ParentError {
     #[inline]
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
-        "normpath: cannot remove the path's last component".fmt(formatter)
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        "normpath: cannot remove the path's last component".fmt(f)
     }
 }
 

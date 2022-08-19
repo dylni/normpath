@@ -80,9 +80,7 @@ pub(super) fn normalize_virtually(
         Some(Component::Prefix(prefix)) if prefix.kind().is_verbatim() => {
             return Ok(normalize_verbatim(initial_path));
         }
-        Some(Component::RootDir)
-            if matches!(*wide_path, [_, SEPARATOR, _, ..]) =>
-        {
+        Some(Component::RootDir) if wide_path[1] == SEPARATOR => {
             return Err(io::Error::new(
                 io::ErrorKind::NotFound,
                 "normpath: partial UNC prefixes are invalid",

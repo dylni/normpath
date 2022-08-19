@@ -43,10 +43,7 @@ pub struct BasePath(pub(super) OsStr);
 impl BasePath {
     fn from_inner(path: &OsStr) -> &Self {
         // SAFETY: This struct has a layout that makes this operation safe.
-        #[allow(clippy::transmute_ptr_to_ptr)]
-        unsafe {
-            mem::transmute(path)
-        }
+        unsafe { mem::transmute(path) }
     }
 
     /// Creates a new base path.

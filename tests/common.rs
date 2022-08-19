@@ -20,8 +20,8 @@ where
     struct Wrapper<'a>(&'a Path);
 
     impl Debug for Wrapper<'_> {
-        fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
-            formatter.debug_tuple("Ok").field(&self.0).finish()
+        fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+            f.debug_tuple("Ok").field(&self.0).finish()
         }
     }
 
@@ -78,4 +78,12 @@ macro_rules! test {
     ( $path:literal , SAME, SAME ) => {
         test!($path, $path, $path);
     };
+}
+
+#[track_caller]
+pub(crate) fn test_join(base: &str, path: &str, result: &str) {
+    assert_eq!(
+        Path::new(result),
+        BasePath::try_new(base).unwrap().join(path),
+    );
 }

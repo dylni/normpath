@@ -4,15 +4,15 @@ version = "0.3.2"
 authors = ["dylni"]
 edition = "2021"
 rust-version = "1.57.0"
-exclude = [".*", "/rustfmt.toml", "/tests"]
 description = """
 More reliable path manipulation
 """
-repository = "https://github.com/dylni/normpath"
 readme = "README.md"
+repository = "https://github.com/dylni/normpath"
+license = "MIT OR Apache-2.0"
 keywords = ["absolute", "canonicalize", "path", "normalize", "windows"]
 categories = ["command-line-interface", "filesystem", "os"]
-license = "MIT OR Apache-2.0"
+exclude = [".*", "tests.rs", "/rustfmt.toml", "/src/bin", "/tests"]
 
 [package.metadata.docs.rs]
 all-features = true
@@ -28,7 +28,7 @@ winapi = { version = "0.3", features = ["fileapi"] }
 
 [dev-dependencies]
 bincode = "1.3"
-tempfile = "3.1"
+tempfile = "3.2"
 
 [target.'cfg(not(windows))'.dev-dependencies]
 libc = "0.2"

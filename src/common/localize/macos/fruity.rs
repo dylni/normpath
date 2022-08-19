@@ -4,10 +4,10 @@
 //! - <https://github.com/nvzqz/fruity/tree/c1d067e8ec03e20bb6f52f7c3ab63cadd2a2b261>
 //!
 //! Copyrights:
-//! - Copyright (c) 2020 Nikolai Vazquez
-//! - <https://github.com/nvzqz/fruity/blob/c1d067e8ec03e20bb6f52f7c3ab63cadd2a2b261/LICENSE-MIT#L3>
-//! - Modifications copyright (c) 2020 dylni (https://github.com/dylni)
-//! - <https://github.com/dylni/normpath/blob/master/COPYRIGHT>
+//! - Copyright (c) 2020 Nikolai Vazquez<br>
+//!   <https://github.com/nvzqz/fruity/blob/c1d067e8ec03e20bb6f52f7c3ab63cadd2a2b261/LICENSE-MIT#L3>
+//! - Modifications copyright (c) 2020 dylni (<https://github.com/dylni>)<br>
+//!   <https://github.com/dylni/normpath/blob/master/COPYRIGHT>
 
 // Crate "fruity" has an unpatched vulnerability and might be unmaintained:
 // https://github.com/nvzqz/fruity/issues/14

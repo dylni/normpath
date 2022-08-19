@@ -12,10 +12,11 @@ use tempfile::tempdir;
 #[macro_use]
 mod common;
 
+#[cfg(windows)]
+#[rustfmt::skip]
+use winapi::shared::winerror::ERROR_INVALID_NAME;
 #[cfg(not(windows))]
 use libc::ENOENT as ERROR_INVALID_NAME;
-#[cfg(windows)]
-use winapi::shared::winerror::ERROR_INVALID_NAME;
 
 #[test]
 fn test_empty() -> io::Result<()> {

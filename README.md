@@ -43,9 +43,9 @@ Unless you explicitly state otherwise, any contribution submitted for inclusion
 in this crate, as defined in [LICENSE-APACHE], shall be licensed according to
 [COPYRIGHT], without any additional terms or conditions.
 
-### Third-party software
+### Third-party content
 
-This crate includes copies and modifications of software developed by third
+This crate includes copies and modifications of content developed by third
 parties:
 
 - [src/cmp.rs] and [tests/rust.rs] contain modifications of code from The Rust

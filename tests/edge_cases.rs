@@ -2,20 +2,20 @@ mod common;
 
 #[cfg(windows)]
 #[test]
-fn test_edge_cases() {
+fn test_windows() {
     use std::path::Path;
 
-    use normpath::BasePath;
     use normpath::PathExt;
 
-    // https://github.com/dylni/normpath/pull/4#issuecomment-938596259
-    tj(r"X:\X:", r"ABC", r"X:\X:\ABC");
-    tj(r"\\?\X:\X:", r"ABC", r"\\?\X:\X:\ABC");
-
     #[track_caller]
-    fn tj(base: &str, path: &str, joined_path: &str) {
-        let joined_path = Path::new(joined_path);
-        assert_eq!(joined_path, BasePath::try_new(base).unwrap().join(path));
-        common::assert_eq(joined_path, joined_path.normalize_virtually());
+    fn test(base: &str, path: &str, result: &str) {
+        common::test_join(base, path, result);
+
+        let result = Path::new(result);
+        common::assert_eq(result, result.normalize_virtually());
     }
+
+    // https://github.com/dylni/normpath/pull/4#issuecomment-938596259
+    test(r"X:\X:", r"ABC", r"X:\X:\ABC");
+    test(r"\\?\X:\X:", r"ABC", r"\\?\X:\X:\ABC");
 }

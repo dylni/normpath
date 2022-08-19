@@ -35,6 +35,16 @@
 //!   Provides implementations of [`serde::Deserialize`] and
 //!   [`serde::Serialize`] for [`BasePath`] and [`BasePathBuf`].
 //!
+//! - **uniquote** -
+//!   Provides implementations of [`uniquote::Quote`] for [`RawOsStr`] and
+//!   [`RawOsString`].
+//!
+//! # Implementation
+//!
+//! All traits are [sealed], meaning that they can only be implemented by this
+//! crate. Otherwise, backward compatibility would be more difficult to
+//! maintain for new features.
+//!
 //! # Sponsorship
 //!
 //! If this crate has been useful for your project, let me know with a
@@ -77,6 +87,7 @@
 //! [`fs::canonicalize`]: ::std::fs::canonicalize
 //! [`PathBuf::pop`]: ::std::path::PathBuf::pop
 //! [`PathBuf::push`]: ::std::path::PathBuf::push
+//! [sealed]: https://rust-lang.github.io/api-guidelines/future-proofing.html#c-sealed
 
 // Only require a nightly compiler when building documentation for docs.rs.
 // This is a private option that should not be used.
