@@ -20,7 +20,7 @@ rustc-args = ["--cfg", "normpath_docs_rs"]
 rustdoc-args = ["--cfg", "normpath_docs_rs"]
 
 [dependencies]
-print_bytes = { version = "0.6", optional = true }
+print_bytes = { version = "0.7", optional = true }
 serde = { version = "1.0", optional = true }
 
 [target.'cfg(windows)'.dependencies]
