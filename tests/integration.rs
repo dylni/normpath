@@ -14,7 +14,7 @@ mod common;
 
 #[cfg(windows)]
 #[rustfmt::skip]
-use winapi::shared::winerror::ERROR_INVALID_NAME;
+use windows_sys::Win32::Foundation::ERROR_INVALID_NAME;
 #[cfg(not(windows))]
 use libc::ENOENT as ERROR_INVALID_NAME;
 

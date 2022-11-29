@@ -1,7 +1,6 @@
 use std::env;
 use std::ffi::OsString;
 use std::io;
-use std::mem;
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Component;
@@ -11,17 +10,10 @@ use std::path::Prefix;
 use std::path::PrefixComponent;
 use std::ptr;
 
-use winapi::shared::minwindef::DWORD;
-use winapi::um::fileapi::GetFullPathNameW;
+use windows_sys::Win32::Storage::FileSystem::GetFullPathNameW;
 
 use super::BasePath;
 use super::BasePathBuf;
-
-macro_rules! static_assert {
-    ( $condition:expr ) => {
-        const _: () = assert!($condition, "static assertion failed");
-    };
-}
 
 const SEPARATOR: u16 = b'\\' as _;
 
@@ -103,9 +95,6 @@ pub(super) fn normalize_virtually(
         if capacity == 0 {
             break Err(io::Error::last_os_error());
         }
-
-        // This assertion should never fail.
-        static_assert!(mem::size_of::<DWORD>() <= mem::size_of::<usize>());
 
         let length = capacity as usize;
         if let Some(mut additional_capacity) =
