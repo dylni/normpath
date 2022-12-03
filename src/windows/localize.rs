@@ -5,7 +5,8 @@ use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
 
-use windows_sys::Win32::UI::Shell::{SHGetFileInfoW, SHGFI_DISPLAYNAME};
+use windows_sys::Win32::UI::Shell::SHGetFileInfoW;
+use windows_sys::Win32::UI::Shell::SHGFI_DISPLAYNAME;
 
 pub(super) fn name(path: &Path) -> Option<OsString> {
     let mut path: Vec<_> = path.as_os_str().encode_wide().collect();
