@@ -5,9 +5,8 @@ use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
 
-use winapi::shared::minwindef::UINT;
-use winapi::um::shellapi::SHGetFileInfoW;
-use winapi::um::shellapi::SHGFI_DISPLAYNAME;
+use windows_sys::Win32::UI::Shell::SHGetFileInfoW;
+use windows_sys::Win32::UI::Shell::SHGFI_DISPLAYNAME;
 
 pub(super) fn name(path: &Path) -> Option<OsString> {
     let mut path: Vec<_> = path.as_os_str().encode_wide().collect();
@@ -22,7 +21,7 @@ pub(super) fn name(path: &Path) -> Option<OsString> {
             path.as_ptr(),
             0,
             path_info.as_mut_ptr(),
-            mem::size_of_val(&path_info) as UINT,
+            mem::size_of_val(&path_info) as _,
             SHGFI_DISPLAYNAME,
         )
     };

@@ -11,8 +11,7 @@ use std::path::Prefix;
 use std::path::PrefixComponent;
 use std::ptr;
 
-use winapi::shared::minwindef::DWORD;
-use winapi::um::fileapi::GetFullPathNameW;
+use windows_sys::Win32::Storage::FileSystem::GetFullPathNameW;
 
 use super::BasePath;
 use super::BasePathBuf;
@@ -104,8 +103,9 @@ pub(super) fn normalize_virtually(
             break Err(io::Error::last_os_error());
         }
 
+        let _: u32 = capacity;
         // This assertion should never fail.
-        static_assert!(mem::size_of::<DWORD>() <= mem::size_of::<usize>());
+        static_assert!(mem::size_of::<u32>() <= mem::size_of::<usize>());
 
         let length = capacity as usize;
         if let Some(mut additional_capacity) =
