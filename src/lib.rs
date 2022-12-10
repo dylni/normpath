@@ -126,8 +126,8 @@ mod normalize;
 pub trait PathExt: private::Sealed {
     /// Returns the localized simple name for this path.
     ///
-    /// If the path does not exist, the last component is returned without
-    /// localization.
+    /// If the path does not exist or localization is not possible, the last
+    /// component will be returned.
     ///
     /// The returned string should only be used for display to users. It will
     /// be as similar as possible to the name displayed by the system file
