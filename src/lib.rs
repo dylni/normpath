@@ -36,8 +36,8 @@
 //!   [`serde::Serialize`] for [`BasePath`] and [`BasePathBuf`].
 //!
 //! - **uniquote** -
-//!   Provides implementations of [`uniquote::Quote`] for [`RawOsStr`] and
-//!   [`RawOsString`].
+//!   Provides implementations of [`uniquote::Quote`] for [`BasePath`] and
+//!   [`BasePathBuf`].
 //!
 //! # Implementation
 //!
