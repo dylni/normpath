@@ -57,11 +57,12 @@ impl NSString {
     }
 
     unsafe fn to_str(&self) -> &str {
+        let length = self.utf8_length();
         // SAFETY: These bytes are encoded using UTF-8.
         unsafe {
             str::from_utf8_unchecked(slice::from_raw_parts(
                 self.to_utf8_ptr(),
-                self.utf8_length(),
+                length,
             ))
         }
     }

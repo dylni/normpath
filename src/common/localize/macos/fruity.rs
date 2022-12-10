@@ -9,9 +9,6 @@
 //! - Modifications copyright (c) 2020 dylni (<https://github.com/dylni>)<br>
 //!   <https://github.com/dylni/normpath/blob/master/COPYRIGHT>
 
-// Crate "fruity" has an unpatched vulnerability and might be unmaintained:
-// https://github.com/nvzqz/fruity/issues/14
-
 use std::os::raw::c_char;
 
 macro_rules! __stringify_sel {

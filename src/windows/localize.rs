@@ -34,6 +34,9 @@ pub(super) fn name(path: &Path) -> Option<OsString> {
     // The display name buffer has a fixed length, so it must be truncated at
     // the first null character.
     Some(OsString::from_wide(
-        display_name.split(|&x| x == 0).next().unwrap(),
+        display_name
+            .split(|&x| x == 0)
+            .next()
+            .expect("missing null byte in display name"),
     ))
 }
