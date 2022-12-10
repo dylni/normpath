@@ -1,6 +1,6 @@
 [package]
 name = "normpath"
-version = "0.3.2"
+version = "1.0.0"
 authors = ["dylni"]
 edition = "2021"
 rust-version = "1.57.0"

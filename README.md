@@ -16,7 +16,7 @@ Add the following lines to your "Cargo.toml" file:
 
 ```toml
 [dependencies]
-normpath = "0.3"
+normpath = "1.0"
 ```
 
 See the [documentation] for available functionality and examples.
@@ -32,7 +32,7 @@ crate's minor version:
 
 ```toml
 [dependencies]
-normpath = "~0.3"
+normpath = "~1.0"
 ```
 
 ## License
