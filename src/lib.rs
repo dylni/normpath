@@ -124,7 +124,7 @@ mod normalize;
 
 /// Additional methods added to [`Path`].
 pub trait PathExt: private::Sealed {
-    /// Localizes the last component of this path if possible.
+    /// Returns the localized simple name for this path.
     ///
     /// If the path does not exist, the last component is returned without
     /// localization.
@@ -283,9 +283,10 @@ impl PathExt for Path {
     #[cfg(feature = "localization")]
     #[inline]
     fn localize_name(&self) -> Cow<'_, OsStr> {
-        let name = match self.components().next_back() {
-            Some(name) => name,
-            None => return Cow::Borrowed(OsStr::new("")),
+        let name = if let Some(name) = self.components().next_back() {
+            name
+        } else {
+            return Cow::Borrowed(OsStr::new(""));
         };
         assert_ne!(
             Component::ParentDir,
