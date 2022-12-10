@@ -69,7 +69,7 @@ pub(super) fn normalize_virtually(
     if wide_path.contains(&0) {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            "normpath: strings passed to WinAPI cannot contains NULs",
+            "strings passed to WinAPI cannot contains NULs",
         ));
     }
     wide_path.push(0);
@@ -82,7 +82,7 @@ pub(super) fn normalize_virtually(
         Some(Component::RootDir) if wide_path[1] == SEPARATOR => {
             return Err(io::Error::new(
                 io::ErrorKind::NotFound,
-                "normpath: partial UNC prefixes are invalid",
+                "partial UNC prefixes are invalid",
             ));
         }
         _ => {}

@@ -19,7 +19,7 @@ pub struct MissingPrefixError(pub(super) ());
 impl Display for MissingPrefixError {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        "normpath: path is missing a prefix".fmt(f)
+        "path is missing a prefix".fmt(f)
     }
 }
 
@@ -51,11 +51,7 @@ impl MissingPrefixBufError {
 impl Display for MissingPrefixBufError {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "normpath: path is missing a prefix: {}",
-            self.0.display(),
-        )
+        write!(f, "path is missing a prefix: \"{}\"", self.0.display())
     }
 }
 
@@ -71,7 +67,7 @@ pub struct ParentError(pub(super) ());
 impl Display for ParentError {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        "normpath: cannot remove the path's last component".fmt(f)
+        "cannot remove the path's last component".fmt(f)
     }
 }
 

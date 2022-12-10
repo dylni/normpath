@@ -63,7 +63,7 @@ fn test_unc_absolute() {
     test!(r"\\server\share\ABC\..\..\..", SAME, r"\\server\share");
 
     assert_eq!(
-        "normpath: partial UNC prefixes are invalid",
+        "partial UNC prefixes are invalid",
         Path::new(r"\\server")
             .normalize_virtually()
             .unwrap_err()
