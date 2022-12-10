@@ -15,6 +15,11 @@ fn test_same() {
     test("applications", "/foo/applications");
     test("applications", "/foo/applications/");
     test("applications", "/foo/applications//");
+    if cfg!(windows) {
+        test("applications", r"X:\foo\applications");
+        test("applications", r"X:\foo\applications\");
+        test("applications", r"X:\foo\applications\\");
+    }
 
     test("test\0.rs", "/foo/bar/test\0.rs");
     if cfg!(unix) {
@@ -43,12 +48,22 @@ fn test_localized() {
     test("foo/bar", "/foo:bar");
 }
 
-#[cfg(not(windows))]
 #[test]
 fn test_invalid() {
-    use std::ffi::OsStr;
-    use std::os::unix::ffi::OsStrExt;
+    #[cfg(windows)]
+    {
+        use std::ffi::OsString;
+        use std::os::windows::ffi::OsStringExt;
 
-    let path = OsStr::from_bytes(&[0x66, 0x6F, 0x80, 0x6F]);
-    assert_eq!(path, Path::new(path).localize_name());
+        let path = OsString::from_wide(&[0x66, 0x6F, 0xD800, 0x6F]);
+        assert_eq!(&*path, Path::new(&path).localize_name());
+    }
+    #[cfg(not(windows))]
+    {
+        use std::ffi::OsStr;
+        use std::os::unix::ffi::OsStrExt;
+
+        let path = OsStr::from_bytes(&[0x66, 0x6F, 0x80, 0x6F]);
+        assert_eq!(path, Path::new(path).localize_name());
+    }
 }
