@@ -10,6 +10,11 @@ fn test(result: &str, path: &str) {
 }
 
 #[test]
+fn test_empty() {
+    test("", "");
+}
+
+#[test]
 fn test_same() {
     test("Applications", "Applications");
     test("applications", "/foo/applications");

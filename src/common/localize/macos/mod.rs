@@ -41,7 +41,7 @@ impl NSString {
         let length =
             unsafe { objc_msgSend(self, sel, NSStringEncoding::UTF8) };
         if length == 0 {
-            assert!(!self.is_empty());
+            assert!(self.is_empty());
         }
         length
     }
