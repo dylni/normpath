@@ -13,7 +13,7 @@ use std::path::PathBuf;
 /// prefix.
 ///
 /// [`BasePath::try_new`]: super::BasePath::try_new
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct MissingPrefixError(pub(super) ());
 
 impl Display for MissingPrefixError {
@@ -29,7 +29,7 @@ impl Error for MissingPrefixError {}
 /// prefix.
 ///
 /// [`BasePathBuf::try_new`]: super::BasePathBuf::try_new
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct MissingPrefixBufError(pub(super) PathBuf);
 
 impl MissingPrefixBufError {
@@ -65,7 +65,7 @@ impl Error for MissingPrefixBufError {}
 /// component.
 ///
 /// [`BasePath::parent`]: super::BasePath::parent
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ParentError(pub(super) ());
 
 impl Display for ParentError {
