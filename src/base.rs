@@ -19,7 +19,7 @@ use super::error::ParentError;
 use super::normalize;
 use super::PathExt;
 
-/// A path that has a [prefix] on Windows.
+/// A borrowed path that has a [prefix] on Windows.
 ///
 /// Note that comparison traits such as [`PartialEq`] will compare paths
 /// literally instead of comparing components. The former is more efficient and
@@ -467,7 +467,11 @@ impl ToOwned for BasePath {
     }
 }
 
-/// An owned [`BasePath`].
+/// An owned path that has a [prefix] on Windows.
+///
+/// For more information, see [`BasePath`].
+///
+/// [prefix]: ::std::path::Prefix
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct BasePathBuf(pub(super) OsString);
 

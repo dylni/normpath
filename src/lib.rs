@@ -32,7 +32,7 @@
 //!   [`BasePathBuf`].
 //!
 //! - **serde** -
-//!   Provides implementations of [`serde::Deserialize`] and
+//!   Provides implementations of [`serde::Deserialize`] and/or
 //!   [`serde::Serialize`] for [`BasePath`] and [`BasePathBuf`].
 //!
 //! - **uniquote** -
@@ -144,9 +144,14 @@ pub trait PathExt: private::Sealed {
     /// However, the implementation is subject to change. This section is only
     /// informative.
     ///
-    /// Documentation for `SHGetFileInfoW` has this note:
-    /// > You should call this function from a background thread. Failure to do
-    /// > so could cause the UI to stop responding.
+    /// <div style="background:rgba(255,181,77,0.16); padding:0.75em;">
+    /// <strong>Warning</strong>: Documentation for <code>SHGetFileInfoW</code>
+    /// has this note:
+    /// <blockquote style="margin: 1em 2em 0.5em;">
+    /// You should call this function from a background thread. Failure to do
+    /// so could cause the UI to stop responding.
+    /// </blockquote>
+    /// </div>
     ///
     /// # Panics
     ///
