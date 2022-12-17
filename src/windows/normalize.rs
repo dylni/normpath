@@ -134,7 +134,7 @@ pub(super) fn normalize_virtually(
             continue;
         }
 
-        // SAFETY: These characters were initialized by the system call.
+        // SAFETY: These characters were initialized by the syscall.
         unsafe {
             buffer.set_len(length);
         }

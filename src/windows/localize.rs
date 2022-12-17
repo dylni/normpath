@@ -1,11 +1,11 @@
 use std::ffi::OsString;
 use std::mem;
-use std::mem::MaybeUninit;
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
 
 use windows_sys::Win32::UI::Shell::SHGetFileInfoW;
+use windows_sys::Win32::UI::Shell::SHFILEINFOW;
 use windows_sys::Win32::UI::Shell::SHGFI_DISPLAYNAME;
 
 pub(super) fn name(path: &Path) -> Option<OsString> {
@@ -15,13 +15,21 @@ pub(super) fn name(path: &Path) -> Option<OsString> {
     }
     path.push(0);
 
-    let mut path_info = MaybeUninit::uninit();
+    let mut path_info = SHFILEINFOW {
+        hIcon: 0,
+        iIcon: 0,
+        dwAttributes: 0,
+        szDisplayName: [0; 260],
+        szTypeName: [0; 80],
+    };
     let result = unsafe {
         SHGetFileInfoW(
             path.as_ptr(),
             0,
-            path_info.as_mut_ptr(),
-            mem::size_of_val(&path_info) as _,
+            &mut path_info,
+            mem::size_of_val(&path_info)
+                .try_into()
+                .expect("path information too large for WinAPI"),
             SHGFI_DISPLAYNAME,
         )
     };
@@ -29,12 +37,11 @@ pub(super) fn name(path: &Path) -> Option<OsString> {
         return None;
     }
 
-    // SAFETY: This struct was initialized by the syscall.
-    let display_name = unsafe { path_info.assume_init() }.szDisplayName;
     // The display name buffer has a fixed length, so it must be truncated at
     // the first null character.
     Some(OsString::from_wide(
-        display_name
+        path_info
+            .szDisplayName
             .split(|&x| x == 0)
             .next()
             .expect("missing null byte in display name"),
