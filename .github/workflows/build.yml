@@ -23,6 +23,7 @@ jobs:
     steps:
     - uses: dylni/build-actions/test@master
       with:
+        nightly-features: 'print_bytes'
         version: ${{ matrix.version }}
     - run: cargo test --features localization
     timeout-minutes: 10
