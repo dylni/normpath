@@ -93,7 +93,6 @@
 // This is a private option that should not be used.
 // https://github.com/rust-lang/docs.rs/issues/147#issuecomment-389544407
 #![cfg_attr(normpath_docs_rs, feature(doc_cfg))]
-#![warn(unsafe_op_in_unsafe_fn)]
 #![warn(unused_results)]
 
 #[cfg(feature = "localization")]
