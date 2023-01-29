@@ -36,7 +36,7 @@ use super::PathExt;
 /// causes immediate undefined behavior.
 ///
 /// [prefix]: ::std::path::Prefix
-#[derive(Debug, Eq, Hash, PartialEq, PartialOrd)]
+#[derive(Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[repr(transparent)]
 pub struct BasePath(pub(super) OsStr);
 
