@@ -43,7 +43,7 @@ use super::PathExt;
 pub struct BasePath(pub(super) OsStr);
 
 impl BasePath {
-    fn from_inner(path: &OsStr) -> &Self {
+    pub(super) fn from_inner(path: &OsStr) -> &Self {
         // SAFETY: This struct has a layout that makes this operation safe.
         unsafe { mem::transmute(path) }
     }
