@@ -33,10 +33,6 @@ use super::PathExt;
 /// panic if this path is missing a prefix on Windows. A safe `new_unchecked`
 /// method might be added later that can safely create invalid base paths.
 ///
-/// Although this type is annotated with `#[repr(transparent)]`, the inner
-/// representation is not stable. Transmuting between this type and any other
-/// causes immediate undefined behavior.
-///
 /// [prefix]: ::std::path::Prefix
 #[derive(Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[repr(transparent)]

@@ -13,8 +13,8 @@ use std::ptr;
 
 use windows_sys::Win32::Storage::FileSystem::GetFullPathNameW;
 
-use super::BasePath;
-use super::BasePathBuf;
+use crate::BasePath;
+use crate::BasePathBuf;
 
 macro_rules! static_assert {
     ( $condition:expr ) => {
@@ -24,11 +24,11 @@ macro_rules! static_assert {
 
 const SEPARATOR: u8 = b'\\';
 
-pub(super) fn is_base(path: &Path) -> bool {
+pub(crate) fn is_base(path: &Path) -> bool {
     matches!(path.components().next(), Some(Component::Prefix(_)))
 }
 
-pub(super) fn to_base(path: &Path) -> io::Result<BasePathBuf> {
+pub(crate) fn to_base(path: &Path) -> io::Result<BasePathBuf> {
     let base = env::current_dir()?;
     debug_assert!(is_base(&base));
 
@@ -81,7 +81,7 @@ fn normalize_verbatim(path: &Path) -> Cow<'_, BasePath> {
     }
 }
 
-pub(super) fn normalize_virtually(
+pub(crate) fn normalize_virtually(
     initial_path: &Path,
 ) -> io::Result<BasePathBuf> {
     // [GetFullPathNameW] always converts separators.
@@ -164,7 +164,7 @@ pub(super) fn normalize_virtually(
     }
 }
 
-pub(super) fn normalize(path: &Path) -> io::Result<BasePathBuf> {
+pub(crate) fn normalize(path: &Path) -> io::Result<BasePathBuf> {
     path.metadata().and_then(|_| normalize_virtually(path))
 }
 
@@ -185,7 +185,7 @@ fn push_separator(base: &mut BasePathBuf) {
     base.0.push("");
 }
 
-pub(super) fn push(base: &mut BasePathBuf, initial_path: &Path) {
+pub(crate) fn push(base: &mut BasePathBuf, initial_path: &Path) {
     // [GetFullPathNameW] always converts separators.
     let path = convert_separators(initial_path, None);
 

@@ -112,14 +112,12 @@ mod cmp;
 
 pub mod error;
 
+#[cfg_attr(windows, path = "windows/mod.rs")]
+#[cfg_attr(not(windows), path = "common/mod.rs")]
+mod imp;
 #[cfg(feature = "localization")]
-#[cfg_attr(windows, path = "windows/localize.rs")]
-#[cfg_attr(not(windows), path = "common/localize/mod.rs")]
-mod localize;
-
-#[cfg_attr(windows, path = "windows/normalize.rs")]
-#[cfg_attr(not(windows), path = "common/normalize.rs")]
-mod normalize;
+use imp::localize;
+use imp::normalize;
 
 /// Additional methods added to [`Path`].
 pub trait PathExt: private::Sealed {
@@ -136,21 +134,29 @@ pub trait PathExt: private::Sealed {
     /// # Implementation
     ///
     /// Currently, this method calls:
-    /// - [`[NSFileManager displayNameAtPath:]`][displayNameAtPath] on MacOS
-    ///   ([rust-lang/rfcs#845]).
-    /// - [`SHGetFileInfoW`] on Windows.
+    ///
+    /// <ul><li>
+    ///
+    /// [`[NSFileManager displayNameAtPath:]`][displayNameAtPath] on MacOS
+    /// ([rust-lang/rfcs#845]).
+    ///
+    /// </li><li>
+    ///
+    /// [`SHGetFileInfoW`] on Windows.
+    ///
+    /// <div class="warning">
+    ///
+    /// This function has a usage note in its documentation:
+    ///
+    /// <blockquote style="margin-bottom: 0;">
+    ///
+    /// You should call this function from a background thread. Failure to do
+    /// so could cause the UI to stop responding.
+    ///
+    /// </blockquote></div></li></ul>
     ///
     /// However, the implementation is subject to change. This section is only
     /// informative.
-    ///
-    /// <div style="background:rgba(255,181,77,0.16); padding:0.75em;">
-    /// <strong>Warning</strong>: Documentation for <code>SHGetFileInfoW</code>
-    /// has this note:
-    /// <blockquote style="margin: 1em 2em 0.5em;">
-    /// You should call this function from a background thread. Failure to do
-    /// so could cause the UI to stop responding.
-    /// </blockquote>
-    /// </div>
     ///
     /// # Panics
     ///

@@ -8,7 +8,7 @@ use windows_sys::Win32::UI::Shell::SHGetFileInfoW;
 use windows_sys::Win32::UI::Shell::SHFILEINFOW;
 use windows_sys::Win32::UI::Shell::SHGFI_DISPLAYNAME;
 
-pub(super) fn name(path: &Path) -> Option<OsString> {
+pub(crate) fn name(path: &Path) -> Option<OsString> {
     let mut path: Vec<_> = path.as_os_str().encode_wide().collect();
     if path.contains(&0) {
         return None;
