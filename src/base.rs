@@ -230,6 +230,13 @@ impl BasePath {
         self.as_path().is_relative()
     }
 
+    /// Equivalent to [`Path::is_symlink`].
+    #[inline]
+    #[must_use]
+    pub fn is_symlink(&self) -> bool {
+        self.as_path().is_symlink()
+    }
+
     /// An improved version of [`Path::join`] that handles more edge cases.
     ///
     /// For example, on Windows, leading `.` and `..` components of `path` will
@@ -401,6 +408,12 @@ impl BasePath {
     #[inline]
     pub fn symlink_metadata(&self) -> io::Result<Metadata> {
         self.as_path().symlink_metadata()
+    }
+
+    /// Equivalent to [`Path::try_exists`].
+    #[inline]
+    pub fn try_exists(&self) -> io::Result<bool> {
+        self.as_path().try_exists()
     }
 }
 
