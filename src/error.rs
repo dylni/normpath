@@ -1,7 +1,5 @@
 //! The error types defined by this crate.
 
-#![allow(clippy::derive_partial_eq_without_eq)]
-
 use std::error::Error;
 use std::fmt;
 use std::fmt::Display;

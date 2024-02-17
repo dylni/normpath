@@ -640,7 +640,7 @@ impl BasePathBuf {
 impl AsRef<OsStr> for BasePathBuf {
     #[inline]
     fn as_ref(&self) -> &OsStr {
-        self.0.as_os_str()
+        self.as_os_str()
     }
 }
 

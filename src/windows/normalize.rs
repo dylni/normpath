@@ -57,7 +57,12 @@ fn normalize_verbatim(path: &Path) -> BasePathBuf {
             *ch = SEPARATOR;
         }
     }
-    BasePathBuf(OsString::from_wide(&path).into())
+    let path: PathBuf = OsString::from_wide(&path).into();
+    debug_assert!(matches!(
+        path.components().next(),
+        Some(Component::Prefix(prefix)) if prefix.kind().is_verbatim(),
+    ));
+    BasePathBuf(path)
 }
 
 pub(super) fn normalize_virtually(

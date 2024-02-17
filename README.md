@@ -8,7 +8,7 @@ Windows: [#45067], [#48249], [#52440], [#55812], [#58613], [#59107], [#74327].
 Normalization is usually a better choice unless you specifically need a
 canonical path.
 
-[![GitHub Build Status](https://github.com/dylni/normpath/workflows/build/badge.svg?branch=master)](https://github.com/dylni/normpath/actions?query=branch%3Amaster)
+[![GitHub Build Status](https://github.com/dylni/normpath/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/dylni/normpath/actions/workflows/build.yml?query=branch%3Amaster)
 
 ## Usage
 

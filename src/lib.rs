@@ -27,7 +27,7 @@
 //! - **localization** -
 //!   Provides [`PathExt::localize_name`] and [`BasePath::localize_name`].
 //!
-//! - **print_bytes** -
+//! - **print\_bytes** -
 //!   Provides implementations of [`print_bytes::ToBytes`] for [`BasePath`] and
 //!   [`BasePathBuf`].
 //!
