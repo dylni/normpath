@@ -21,9 +21,6 @@ pub(super) fn normalize(path: &Path) -> io::Result<BasePathBuf> {
 
 pub(super) fn push(base: &mut BasePathBuf, path: &Path) {
     if !path.as_os_str().is_empty() {
-        base.replace_with(|mut base| {
-            base.push(path);
-            base
-        });
+        base.0.push(path);
     }
 }

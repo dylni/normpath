@@ -32,7 +32,7 @@ pub(super) fn to_base(path: &Path) -> io::Result<BasePathBuf> {
     let base = env::current_dir()?;
     debug_assert!(is_base(&base));
 
-    let mut base = BasePathBuf(base.into_os_string());
+    let mut base = BasePathBuf(base);
     base.push(path);
     Ok(base)
 }
@@ -57,7 +57,7 @@ fn normalize_verbatim(path: &Path) -> BasePathBuf {
             *ch = SEPARATOR;
         }
     }
-    BasePathBuf(OsString::from_wide(&path))
+    BasePathBuf(OsString::from_wide(&path).into())
 }
 
 pub(super) fn normalize_virtually(
@@ -138,7 +138,7 @@ pub(super) fn normalize_virtually(
         unsafe {
             buffer.set_len(length);
         }
-        break Ok(BasePathBuf(OsString::from_wide(&buffer)));
+        break Ok(BasePathBuf(OsString::from_wide(&buffer).into()));
     }
 }
 
@@ -159,11 +159,8 @@ fn get_prefix(base: &BasePath) -> PrefixComponent<'_> {
 }
 
 fn push_separator(base: &mut BasePathBuf) {
-    base.replace_with(|mut base| {
-        // Add a separator if necessary.
-        base.push("");
-        base
-    });
+    // Add a separator if necessary.
+    base.0.push("");
 }
 
 pub(super) fn push(base: &mut BasePathBuf, initial_path: &Path) {
@@ -187,14 +184,14 @@ pub(super) fn push(base: &mut BasePathBuf, initial_path: &Path) {
                 // Equivalent to [path.has_root()] but more efficient.
                 || next_component == Some(Component::RootDir)
             {
-                *base = BasePathBuf(path.into_os_string());
+                *base = BasePathBuf(path);
                 return;
             }
         }
         Some(Component::RootDir) => {
             let mut buffer = get_prefix(base).as_os_str().to_owned();
             buffer.push(path);
-            *base = BasePathBuf(buffer);
+            *base = BasePathBuf(buffer.into());
             return;
         }
         _ => {
@@ -211,12 +208,12 @@ pub(super) fn push(base: &mut BasePathBuf, initial_path: &Path) {
 
     if let Some(component) = next_component {
         push_separator(base);
-        base.0.push(component);
+        base.0.as_mut_os_string().push(component);
 
         let components = components.as_path();
         if !components.as_os_str().is_empty() {
             push_separator(base);
-            base.0.push(components);
+            base.0.as_mut_os_string().push(components);
         }
     }
 

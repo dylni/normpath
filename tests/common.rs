@@ -27,9 +27,7 @@ where
 
     impl PartialEq<Result<&Path, &io::Error>> for Wrapper<'_> {
         fn eq(&self, other: &Result<&Path, &io::Error>) -> bool {
-            other
-                .map(|x| self.0.as_os_str() == x.as_os_str())
-                .unwrap_or(false)
+            other.is_ok_and(|x| self.0.as_os_str() == x.as_os_str())
         }
     }
 

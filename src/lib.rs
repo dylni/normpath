@@ -287,9 +287,7 @@ impl PathExt for Path {
     #[cfg(feature = "localization")]
     #[inline]
     fn localize_name(&self) -> Cow<'_, OsStr> {
-        let name = if let Some(name) = self.components().next_back() {
-            name
-        } else {
+        let Some(name) = self.components().next_back() else {
             return Cow::Borrowed(OsStr::new(""));
         };
         assert_ne!(
