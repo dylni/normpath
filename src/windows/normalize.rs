@@ -12,6 +12,7 @@ use std::path::PrefixComponent;
 use std::ptr;
 
 use windows_sys::Win32::Storage::FileSystem::GetFullPathNameW;
+use windows_sys::Win32::Storage::FileSystem::GetLongPathNameW;
 
 use crate::BasePath;
 use crate::BasePathBuf;
@@ -81,46 +82,14 @@ fn normalize_verbatim(path: &Path) -> Cow<'_, BasePath> {
     }
 }
 
-pub(crate) fn normalize_virtually(
-    initial_path: &Path,
-) -> io::Result<BasePathBuf> {
-    // [GetFullPathNameW] always converts separators.
-    let path = convert_separators(initial_path, None);
-
-    let mut wide_path: Vec<_> = path.as_os_str().encode_wide().collect();
-    if wide_path.contains(&0) {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "strings passed to WinAPI cannot contains NULs",
-        ));
-    }
-    wide_path.push(0);
-
-    match path.components().next() {
-        // Verbatim paths should not be modified.
-        Some(Component::Prefix(prefix)) if prefix.kind().is_verbatim() => {
-            return Ok(normalize_verbatim(initial_path).into_owned());
-        }
-        Some(Component::RootDir) if wide_path[1] == SEPARATOR.into() => {
-            return Err(io::Error::new(
-                io::ErrorKind::NotFound,
-                "partial UNC prefixes are invalid",
-            ));
-        }
-        _ => {}
-    }
-
+fn winapi_buffered<F>(mut call_fn: F) -> io::Result<Vec<u16>>
+where
+    F: FnMut(*mut u16, u32) -> u32,
+{
     let mut buffer = Vec::new();
     let mut capacity = 0;
     loop {
-        capacity = unsafe {
-            GetFullPathNameW(
-                wide_path.as_ptr(),
-                capacity,
-                buffer.as_mut_ptr(),
-                ptr::null_mut(),
-            )
-        };
+        capacity = call_fn(buffer.as_mut_ptr(), capacity);
         if capacity == 0 {
             break Err(io::Error::last_os_error());
         }
@@ -160,12 +129,67 @@ pub(crate) fn normalize_virtually(
         unsafe {
             buffer.set_len(length);
         }
-        break Ok(BasePathBuf(OsString::from_wide(&buffer).into()));
+        return Ok(buffer);
     }
 }
 
+fn normalize_with(
+    initial_path: &Path,
+    existing: bool,
+) -> io::Result<BasePathBuf> {
+    // [GetFullPathNameW] always converts separators.
+    let path = convert_separators(initial_path, None);
+
+    let mut wide_path: Vec<_> = path.as_os_str().encode_wide().collect();
+    if wide_path.contains(&0) {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "strings passed to WinAPI cannot contains NULs",
+        ));
+    }
+    wide_path.push(0);
+
+    match path.components().next() {
+        // Verbatim paths should not be modified.
+        Some(Component::Prefix(prefix)) if prefix.kind().is_verbatim() => {
+            return Ok(normalize_verbatim(initial_path).into_owned());
+        }
+        Some(Component::RootDir) if wide_path[1] == SEPARATOR.into() => {
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                "partial UNC prefixes are invalid",
+            ));
+        }
+        _ => {}
+    }
+
+    wide_path = winapi_buffered(|buffer, capacity| unsafe {
+        GetFullPathNameW(wide_path.as_ptr(), capacity, buffer, ptr::null_mut())
+    })?;
+
+    if existing {
+        if wide_path.contains(&0) {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "strings passed to WinAPI cannot contains NULs",
+            ));
+        }
+        wide_path.push(0);
+
+        wide_path = winapi_buffered(|buffer, capacity| unsafe {
+            GetLongPathNameW(wide_path.as_ptr(), buffer, capacity)
+        })?;
+    }
+
+    Ok(BasePathBuf(OsString::from_wide(&wide_path).into()))
+}
+
+pub(crate) fn normalize_virtually(path: &Path) -> io::Result<BasePathBuf> {
+    normalize_with(path, false)
+}
+
 pub(crate) fn normalize(path: &Path) -> io::Result<BasePathBuf> {
-    path.metadata().and_then(|_| normalize_virtually(path))
+    path.metadata().and_then(|_| normalize_with(path, true))
 }
 
 fn get_prefix(base: &BasePath) -> PrefixComponent<'_> {

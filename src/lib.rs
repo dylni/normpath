@@ -217,7 +217,7 @@ pub trait PathExt: private::Sealed {
     ///
     /// Currently, this method calls:
     /// - [`fs::canonicalize`] on Unix.
-    /// - [`GetFullPathNameW`] on Windows.
+    /// - [`GetFullPathNameW`] and [`GetLongPathNameW`] on Windows.
     ///
     /// However, the implementation is subject to change. This section is only
     /// informative.
@@ -251,6 +251,7 @@ pub trait PathExt: private::Sealed {
     ///
     /// [`fs::canonicalize`]: ::std::fs::canonicalize
     /// [`GetFullPathNameW`]: https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfullpathnamew
+    /// [`GetLongPathNameW`]: https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlongpathnamew
     /// [`normalize_virtually`]: Self::normalize_virtually
     /// [rust-lang/rust#42869]: https://github.com/rust-lang/rust/issues/42869
     /// [rust-lang/rust#49342]: https://github.com/rust-lang/rust/issues/49342
@@ -259,7 +260,16 @@ pub trait PathExt: private::Sealed {
     /// [verbatim]: ::std::path::Prefix::is_verbatim
     fn normalize(&self) -> io::Result<BasePathBuf>;
 
-    /// Equivalent to [`normalize`] but does not access the file system.
+    /// Normalizes `self` similarly to [`normalize`] but does not perform any
+    /// operations that require accessing the filesystem.
+    ///
+    /// # Implementation
+    ///
+    /// Currently, this method is equivalent to [`normalize`], except that it
+    /// does not call [`GetLongPathNameW`] on Windows.
+    ///
+    /// However, the implementation is subject to change. This section is only
+    /// informative.
     ///
     /// # Errors
     ///
@@ -283,6 +293,7 @@ pub trait PathExt: private::Sealed {
     /// # Ok::<_, io::Error>(())
     /// ```
     ///
+    /// [`GetLongPathNameW`]: https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlongpathnamew
     /// [`normalize`]: Self::normalize
     #[cfg(any(doc, windows))]
     #[cfg_attr(normpath_docs_rs, doc(cfg(windows)))]
