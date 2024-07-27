@@ -17,7 +17,7 @@ fn test_drive_absolute() {
     test!(r"X:\", SAME, SAME);
     test!(r"X:\ABC\", SAME, SAME);
     test!(r"X:\ABC\DEF. .", SAME, r"X:\ABC\DEF");
-    test!(r"X:/ABC/DEF", r"X:\ABC\DEF", SAME);
+    test!(r"X:/ABC/DEF", SAME, r"X:\ABC\DEF");
     test!(r"X:\ABC\..\XYZ", SAME, r"X:\XYZ");
     test!(r"X:\ABC\..\..\..", SAME, r"X:\");
 }
@@ -58,7 +58,7 @@ fn test_unc_absolute() {
     test!(r"\\server\share\ABC\DEF", SAME, SAME);
     test!(r"\\server\share", SAME, SAME);
     test!(r"\\server\share\ABC. .", SAME, r"\\server\share\ABC");
-    test!(r"//server/share/ABC/DEF", r"\\server\share\ABC\DEF", SAME);
+    test!(r"//server/share/ABC/DEF", SAME, r"\\server\share\ABC\DEF");
     test!(r"\\server\share\ABC\..\XYZ", SAME, r"\\server\share\XYZ");
     test!(r"\\server\share\ABC\..\..\..", SAME, r"\\server\share");
 
@@ -76,7 +76,7 @@ fn test_local_device() {
     test!(r"\\.\COM20", SAME, SAME);
     test!(r"\\.\pipe\mypipe", SAME, SAME);
     test!(r"\\.\X:\ABC\DEF. .", SAME, r"\\.\X:\ABC\DEF");
-    test!(r"\\.\X:/ABC/DEF", r"\\.\X:\ABC\DEF", SAME);
+    test!(r"\\.\X:/ABC/DEF", SAME, r"\\.\X:\ABC\DEF");
     test!(r"\\.\X:\ABC\..\XYZ", SAME, r"\\.\X:\XYZ");
     test!(r"\\.\X:\ABC\..\..\C:\", SAME, r"\\.\C:\");
     test!(r"\\.\pipe\mypipe\..\notmine", SAME, r"\\.\pipe\notmine");
@@ -119,16 +119,16 @@ fn test_root_local_device() {
 
 #[test]
 fn test_edge_cases() {
-    test!(r"//?/X:/ABC/DEF", r"\\?\X:/ABC/DEF", SAME);
-    test!(r"//?/X:/", r"\\?\X:/", SAME);
-    test!(r"//?/X:", r"\\?\X:", SAME);
+    test!(r"//?/X:/ABC/DEF", SAME, r"\\?\X:\ABC\DEF");
+    test!(r"//?/X:/", SAME, r"\\?\X:\");
+    test!(r"//?/X:", SAME, r"\\?\X:");
 
     // This prefix is not parsed by the standard library:
     // https://github.com/rust-lang/rust/issues/56030
     //
-    // test!(r"/??/X:/ABC/DEF", r"\??\X:/ABC/DEF", SAME);
-    // test!(r"/??/X:/", r"\??\X:/", SAME);
-    // test!(r"/??/X:", r"\??\X:", SAME);
+    // test!(r"/??/X:/ABC/DEF", SAME, r"\??\X:\ABC\DEF");
+    // test!(r"/??/X:/", SAME, r"\??\X:\");
+    // test!(r"/??/X:", SAME, r"\??\X:");
 }
 
 // https://github.com/dylni/normpath/issues/5
