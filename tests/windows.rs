@@ -131,6 +131,40 @@ fn test_edge_cases() {
     // test!(r"/??/X:", SAME, r"\??\X:");
 }
 
+#[test]
+fn test_short() {
+    #[track_caller]
+    fn test(short_path: &str, long_path: &str) {
+        let short_path = Path::new(short_path);
+        let long_path = Path::new(long_path);
+        common::assert_eq(long_path, short_path.normalize());
+        assert_ne!(
+            long_path,
+            short_path
+                .normalize_virtually()
+                .expect("failed to normalize existing path"),
+        );
+    }
+
+    test(r"C:\DOCUME~1", r"C:\Documents and Settings");
+    test(r"C:\PROGRA~1", r"C:\Program Files");
+    test(r"C:\PROGRA~2", r"C:\Program Files (x86)");
+}
+
+#[test]
+fn test_existing() {
+    #[track_caller]
+    fn test(path: &str) {
+        let path = Path::new(path);
+        assert!(path.metadata().is_ok());
+        common::assert_eq(path, path.normalize());
+    }
+
+    test(r"C:\Documents and Settings");
+    test(r"\\localhost\C$\Documents and Settings");
+    test(r"\\?\C:\Documents and Settings");
+}
+
 // https://github.com/dylni/normpath/issues/5
 #[test]
 fn test_windows_bug() -> io::Result<()> {
