@@ -117,7 +117,6 @@ pub mod error;
 mod imp;
 #[cfg(feature = "localization")]
 use imp::localize;
-use imp::normalize;
 
 /// Additional methods added to [`Path`].
 pub trait PathExt: private::Sealed {
@@ -189,6 +188,10 @@ pub trait PathExt: private::Sealed {
 
     /// Normalizes `self` relative to the current directory.
     ///
+    /// The purpose of normalization is to remove `.` and `..` components of a
+    /// path if possible and make it absolute. This may be necessary for
+    /// operations on the path string to be more reliable.
+    ///
     /// This method will access the file system to normalize the path. If the
     /// path might not exist, [`normalize_virtually`] can be used instead, but
     /// it is only available on Windows. Other platforms require file system
@@ -208,10 +211,10 @@ pub trait PathExt: private::Sealed {
     /// - shared partition paths do not cause an error.
     ///   ([rust-lang/rust#52440])
     ///
-    /// However, [verbatim] paths will not be modified, so they might still
-    /// contain `.` or `..` components. [`BasePath::join`] and
-    /// [`BasePathBuf::push`] can normalize them before they become part of the
-    /// path.
+    /// [Verbatim] paths will not be modified, so they might still contain `.`
+    /// or `..` components. [`BasePath::join`] and [`BasePathBuf::push`] can
+    /// normalize them before they become part of the path. Junction points
+    /// will additionally not be resolved with the current implementation.
     ///
     /// # Implementation
     ///
@@ -321,13 +324,13 @@ impl PathExt for Path {
 
     #[inline]
     fn normalize(&self) -> io::Result<BasePathBuf> {
-        normalize::normalize(self)
+        imp::normalize(self)
     }
 
     #[cfg(any(doc, windows))]
     #[inline]
     fn normalize_virtually(&self) -> io::Result<BasePathBuf> {
-        normalize::normalize_virtually(self)
+        imp::normalize_virtually(self)
     }
 }
 
