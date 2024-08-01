@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::io;
 use std::path::Path;
 
@@ -20,6 +21,14 @@ pub(crate) fn normalize(path: &Path) -> io::Result<BasePathBuf> {
     // This method rejects null bytes and empty paths, which is consistent with
     // [GetFullPathNameW] on Windows.
     path.canonicalize().and_then(BasePathBuf::new)
+}
+
+pub(crate) fn expand(path: &Path) -> io::Result<Cow<'_, Path>> {
+    path.metadata().map(|_| Cow::Borrowed(path))
+}
+
+pub(crate) fn shorten(path: &Path) -> io::Result<Cow<'_, Path>> {
+    expand(path)
 }
 
 pub(crate) fn push(base: &mut BasePathBuf, path: &Path) {

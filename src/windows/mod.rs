@@ -14,6 +14,7 @@ use std::ptr;
 
 use windows_sys::Win32::Storage::FileSystem::GetFullPathNameW;
 use windows_sys::Win32::Storage::FileSystem::GetLongPathNameW;
+use windows_sys::Win32::Storage::FileSystem::GetShortPathNameW;
 
 use crate::BasePath;
 use crate::BasePathBuf;
@@ -95,7 +96,10 @@ where
     }
 }
 
-fn normalize_with(path: &Path, existing: bool) -> io::Result<BasePathBuf> {
+fn winapi_path(
+    path: &Path,
+    call_fn: fn(*const u16, *mut u16, u32) -> u32,
+) -> io::Result<Cow<'_, Path>> {
     if path.as_os_str().as_encoded_bytes().contains(&0) {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
@@ -106,7 +110,7 @@ fn normalize_with(path: &Path, existing: bool) -> io::Result<BasePathBuf> {
     match path.components().next() {
         // Verbatim paths should not be modified.
         Some(Component::Prefix(prefix)) if prefix.kind().is_verbatim() => {
-            return Ok(BasePathBuf(path.to_owned()));
+            return Ok(Cow::Borrowed(path));
         }
         Some(Component::RootDir)
             if path
@@ -127,33 +131,34 @@ fn normalize_with(path: &Path, existing: bool) -> io::Result<BasePathBuf> {
     debug_assert!(!path.contains(&0));
     path.push(0);
 
-    path = winapi_buffered(|buffer, capacity| unsafe {
-        GetFullPathNameW(path.as_ptr(), capacity, buffer, ptr::null_mut())
+    path = winapi_buffered(|buffer, capacity| {
+        call_fn(path.as_ptr(), buffer, capacity)
     })?;
 
-    if existing {
-        if path.contains(&0) {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "existing paths should not contains NULs",
-            ));
-        }
-        path.push(0);
-
-        path = winapi_buffered(|buffer, capacity| unsafe {
-            GetLongPathNameW(path.as_ptr(), buffer, capacity)
-        })?;
-    }
-
-    Ok(BasePathBuf(OsString::from_wide(&path).into()))
+    Ok(Cow::Owned(OsString::from_wide(&path).into()))
 }
 
 pub(crate) fn normalize_virtually(path: &Path) -> io::Result<BasePathBuf> {
-    normalize_with(path, false)
+    winapi_path(path, |path, buffer, capacity| unsafe {
+        GetFullPathNameW(path, capacity, buffer, ptr::null_mut())
+    })
+    .map(|x| BasePathBuf(x.into_owned()))
 }
 
 pub(crate) fn normalize(path: &Path) -> io::Result<BasePathBuf> {
-    path.metadata().and_then(|_| normalize_with(path, true))
+    path.metadata().and_then(|_| normalize_virtually(path))
+}
+
+pub(crate) fn expand(path: &Path) -> io::Result<Cow<'_, Path>> {
+    winapi_path(path, |path, buffer, capacity| unsafe {
+        GetLongPathNameW(path, buffer, capacity)
+    })
+}
+
+pub(crate) fn shorten(path: &Path) -> io::Result<Cow<'_, Path>> {
+    winapi_path(path, |path, buffer, capacity| unsafe {
+        GetShortPathNameW(path, buffer, capacity)
+    })
 }
 
 fn get_prefix(base: &BasePath) -> PrefixComponent<'_> {

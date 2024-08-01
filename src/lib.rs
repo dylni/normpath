@@ -41,6 +41,11 @@
 //!
 //! # Implementation
 //!
+//! Some methods return [`Cow`] to account for platform differences. However,
+//! no guarantee is made that the same variant of that enum will always be
+//! returned for the same platform. Whichever can be constructed most
+//! efficiently will be returned.
+//!
 //! All traits are [sealed], meaning that they can only be implemented by this
 //! crate. Otherwise, backward compatibility would be more difficult to
 //! maintain for new features.
@@ -95,7 +100,6 @@
 #![cfg_attr(normpath_docs_rs, feature(doc_cfg))]
 #![warn(unused_results)]
 
-#[cfg(feature = "localization")]
 use std::borrow::Cow;
 #[cfg(feature = "localization")]
 use std::ffi::OsStr;
@@ -120,6 +124,49 @@ use imp::localize;
 
 /// Additional methods added to [`Path`].
 pub trait PathExt: private::Sealed {
+    /// Expands `self` from its short form, if the convention exists for the
+    /// platform.
+    ///
+    /// This method reverses [`shorten`] but may not return the original path.
+    /// Additional components may be shortened that were not before calling
+    /// [`shorten`].
+    ///
+    /// # Implementation
+    ///
+    /// Currently, this method calls:
+    /// - [`GetLongPathNameW`] on Windows.
+    ///
+    /// However, the implementation is subject to change. This section is only
+    /// informative.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if `self` does not exist, even on Unix.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use std::io;
+    /// use std::path::Path;
+    ///
+    /// use normpath::PathExt;
+    ///
+    /// if cfg!(windows) {
+    ///     assert_eq!(
+    ///         Path::new(r"C:\Documents and Settings"),
+    ///         Path::new(r"C:\DOCUME~1").expand()?,
+    ///     );
+    /// }
+    /// #
+    /// # Ok::<_, io::Error>(())
+    /// ```
+    ///
+    /// [`GetLongPathNameW`]: https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlongpathnamew
+    /// [`shorten`]: Self::shorten
+    fn expand(&self) -> io::Result<Cow<'_, Self>>
+    where
+        Self: ToOwned;
+
     /// Returns the localized simple name for this path.
     ///
     /// If the path does not exist or localization is not possible, the last
@@ -220,7 +267,7 @@ pub trait PathExt: private::Sealed {
     ///
     /// Currently, this method calls:
     /// - [`fs::canonicalize`] on Unix.
-    /// - [`GetFullPathNameW`] and [`GetLongPathNameW`] on Windows.
+    /// - [`GetFullPathNameW`] on Windows.
     ///
     /// However, the implementation is subject to change. This section is only
     /// informative.
@@ -254,7 +301,6 @@ pub trait PathExt: private::Sealed {
     ///
     /// [`fs::canonicalize`]: ::std::fs::canonicalize
     /// [`GetFullPathNameW`]: https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfullpathnamew
-    /// [`GetLongPathNameW`]: https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlongpathnamew
     /// [`normalize_virtually`]: Self::normalize_virtually
     /// [rust-lang/rust#42869]: https://github.com/rust-lang/rust/issues/42869
     /// [rust-lang/rust#49342]: https://github.com/rust-lang/rust/issues/49342
@@ -263,16 +309,7 @@ pub trait PathExt: private::Sealed {
     /// [verbatim]: ::std::path::Prefix::is_verbatim
     fn normalize(&self) -> io::Result<BasePathBuf>;
 
-    /// Normalizes `self` similarly to [`normalize`] but does not perform any
-    /// operations that require accessing the filesystem.
-    ///
-    /// # Implementation
-    ///
-    /// Currently, this method is equivalent to [`normalize`], except that it
-    /// does not call [`GetLongPathNameW`] on Windows.
-    ///
-    /// However, the implementation is subject to change. This section is only
-    /// informative.
+    /// Equivalent to [`normalize`] but does not access the file system.
     ///
     /// # Errors
     ///
@@ -296,14 +333,61 @@ pub trait PathExt: private::Sealed {
     /// # Ok::<_, io::Error>(())
     /// ```
     ///
-    /// [`GetLongPathNameW`]: https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlongpathnamew
     /// [`normalize`]: Self::normalize
     #[cfg(any(doc, windows))]
     #[cfg_attr(normpath_docs_rs, doc(cfg(windows)))]
     fn normalize_virtually(&self) -> io::Result<BasePathBuf>;
+
+    /// Shortens `self` from its expanded form, if the convention exists for
+    /// the platform.
+    ///
+    /// This method reverses [`expand`] but may not return the original path.
+    /// Additional components may be shortened that were not before calling
+    /// [`expand`].
+    ///
+    /// # Implementation
+    ///
+    /// Currently, this method calls:
+    /// - [`GetShortPathNameW`] on Windows.
+    ///
+    /// However, the implementation is subject to change. This section is only
+    /// informative.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if `self` does not exist, even on Unix.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use std::io;
+    /// use std::path::Path;
+    ///
+    /// use normpath::PathExt;
+    ///
+    /// if cfg!(windows) {
+    ///     assert_eq!(
+    ///         Path::new(r"C:\DOCUME~1"),
+    ///         Path::new(r"C:\Documents and Settings").shorten()?,
+    ///     );
+    /// }
+    /// #
+    /// # Ok::<_, io::Error>(())
+    /// ```
+    ///
+    /// [`expand`]: Self::expand
+    /// [`GetShortPathNameW`]: https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getshortpathnamew
+    fn shorten(&self) -> io::Result<Cow<'_, Self>>
+    where
+        Self: ToOwned;
 }
 
 impl PathExt for Path {
+    #[inline]
+    fn expand(&self) -> io::Result<Cow<'_, Self>> {
+        imp::expand(self)
+    }
+
     #[cfg(feature = "localization")]
     #[inline]
     fn localize_name(&self) -> Cow<'_, OsStr> {
@@ -331,6 +415,11 @@ impl PathExt for Path {
     #[inline]
     fn normalize_virtually(&self) -> io::Result<BasePathBuf> {
         imp::normalize_virtually(self)
+    }
+
+    #[inline]
+    fn shorten(&self) -> io::Result<Cow<'_, Self>> {
+        imp::shorten(self)
     }
 }
 

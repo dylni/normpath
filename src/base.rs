@@ -21,6 +21,17 @@ use super::error::ParentError;
 use super::imp;
 use super::PathExt;
 
+fn cow_path_into_base_path(path: Cow<'_, Path>) -> Cow<'_, BasePath> {
+    debug_assert!(imp::is_base(&path));
+
+    match path {
+        Cow::Borrowed(path) => {
+            Cow::Borrowed(BasePath::from_inner(path.as_os_str()))
+        }
+        Cow::Owned(path) => Cow::Owned(BasePathBuf(path)),
+    }
+}
+
 /// A borrowed path that has a [prefix] on Windows.
 ///
 /// Note that comparison traits such as [`PartialEq`] will compare paths
@@ -168,6 +179,12 @@ impl BasePath {
     #[must_use]
     pub fn exists(&self) -> bool {
         self.as_path().exists()
+    }
+
+    /// Equivalent to [`PathExt::expand`].
+    #[inline]
+    pub fn expand(&self) -> io::Result<Cow<'_, Self>> {
+        self.as_path().expand().map(cow_path_into_base_path)
     }
 
     /// Equivalent to [`Path::extension`].
@@ -388,6 +405,12 @@ impl BasePath {
     #[inline]
     pub fn read_link(&self) -> io::Result<PathBuf> {
         self.as_path().read_link()
+    }
+
+    /// Equivalent to [`PathExt::shorten`].
+    #[inline]
+    pub fn shorten(&self) -> io::Result<Cow<'_, Self>> {
+        self.as_path().shorten().map(cow_path_into_base_path)
     }
 
     /// Equivalent to [`Path::starts_with`].

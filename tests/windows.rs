@@ -137,7 +137,8 @@ fn test_short() {
     fn test(short_path: &str, long_path: &str) {
         let short_path = Path::new(short_path);
         let long_path = Path::new(long_path);
-        common::assert_eq(long_path, short_path.normalize());
+        common::assert_eq(long_path, short_path.expand());
+        common::assert_eq(short_path, long_path.shorten());
         assert_ne!(
             long_path,
             short_path
@@ -158,6 +159,7 @@ fn test_existing() {
         let path = Path::new(path);
         assert!(path.metadata().is_ok());
         common::assert_eq(path, path.normalize());
+        common::assert_eq(path, path.expand());
     }
 
     test(r"C:\Documents and Settings");
