@@ -3,6 +3,7 @@ use std::mem;
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
+use std::ptr;
 
 use windows_sys::Win32::UI::Shell::SHGetFileInfoW;
 use windows_sys::Win32::UI::Shell::SHFILEINFOW;
@@ -16,7 +17,7 @@ pub(crate) fn name(path: &Path) -> Option<OsString> {
     path.push(0);
 
     let mut path_info = SHFILEINFOW {
-        hIcon: 0,
+        hIcon: ptr::null_mut(),
         iIcon: 0,
         dwAttributes: 0,
         szDisplayName: [0; 260],
