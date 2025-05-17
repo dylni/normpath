@@ -4,6 +4,7 @@ use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::io;
 use std::mem;
+use std::ops::Not;
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Component;
@@ -45,6 +46,13 @@ pub(crate) fn to_base(path: &Path) -> io::Result<BasePathBuf> {
     Ok(base)
 }
 
+#[inline(always)]
+const fn u32_to_usize(n: u32) -> usize {
+    // This assertion should never fail.
+    static_assert!(mem::size_of::<u32>() <= mem::size_of::<usize>());
+    n as usize
+}
+
 fn winapi_buffered<F>(mut call_fn: F) -> io::Result<Vec<u16>>
 where
     F: FnMut(*mut u16, u32) -> u32,
@@ -57,42 +65,26 @@ where
             break Err(io::Error::last_os_error());
         }
 
-        let _: u32 = capacity;
-        // This assertion should never fail.
-        static_assert!(mem::size_of::<u32>() <= mem::size_of::<usize>());
-
-        let length = capacity as usize;
-        if let Some(mut additional_capacity) =
+        let length = u32_to_usize(capacity);
+        let Some(mut additional_capacity) =
             length.checked_sub(buffer.capacity())
-        {
-            assert_ne!(0, additional_capacity);
-
-            // WinAPI can recommend an insufficient capacity that causes it to
-            // return incorrect results, so extra space is reserved as a
-            // workaround.
-            macro_rules! extra_capacity {
-                () => {
-                    2
-                };
+        else {
+            // SAFETY: These characters were initialized by the syscall.
+            unsafe {
+                buffer.set_len(length);
             }
-            capacity =
-                capacity.checked_add(extra_capacity!()).ok_or_else(|| {
-                    io::Error::new(
-                        io::ErrorKind::Other,
-                        "required path length is too large for WinAPI",
-                    )
-                })?;
-            additional_capacity += extra_capacity!();
+            return Ok(buffer);
+        };
+        assert_ne!(0, additional_capacity);
 
-            buffer.reserve(additional_capacity);
-            continue;
-        }
+        // WinAPI can recommend an insufficient capacity that causes it to
+        // return incorrect results, so extra space is reserved as a
+        // workaround.
+        let extra_capacity = 2.min(capacity.not());
+        capacity += extra_capacity;
+        additional_capacity += u32_to_usize(extra_capacity);
 
-        // SAFETY: These characters were initialized by the syscall.
-        unsafe {
-            buffer.set_len(length);
-        }
-        return Ok(buffer);
+        buffer.reserve(additional_capacity);
     }
 }
 
@@ -146,7 +138,10 @@ pub(crate) fn normalize_virtually(path: &Path) -> io::Result<BasePathBuf> {
 }
 
 pub(crate) fn normalize(path: &Path) -> io::Result<BasePathBuf> {
-    path.metadata().and_then(|_| normalize_virtually(path))
+    // Trigger an error for nonexistent paths for consistency with other
+    // platforms.
+    let _ = path.metadata()?;
+    normalize_virtually(path)
 }
 
 pub(crate) fn expand(path: &Path) -> io::Result<Cow<'_, Path>> {
