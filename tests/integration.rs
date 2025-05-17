@@ -75,8 +75,13 @@ fn test_serde() -> io::Result<()> {
     };
 
     let base = BasePathBuf::new(path)?;
-    let bytes = bincode::serialize(&base).unwrap();
-    assert_eq!(base, bincode::deserialize::<BasePathBuf>(&bytes).unwrap());
+    let config = bincode::config::standard();
+    let encoded = bincode::serde::encode_to_vec(&base, config).unwrap();
+    let decoded =
+        bincode::serde::decode_from_slice::<BasePathBuf, _>(&encoded, config)
+            .unwrap();
+    assert_eq!(base, decoded.0);
+    assert_eq!(encoded.len(), decoded.1);
 
     Ok(())
 }
