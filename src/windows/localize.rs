@@ -1,5 +1,4 @@
 use std::ffi::OsString;
-use std::mem;
 use std::os::windows::ffi::OsStrExt;
 use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
@@ -28,7 +27,7 @@ pub(crate) fn name(path: &Path) -> Option<OsString> {
             path.as_ptr(),
             0,
             &mut path_info,
-            mem::size_of_val(&path_info)
+            size_of_val(&path_info)
                 .try_into()
                 .expect("path information too large for WinAPI"),
             SHGFI_DISPLAYNAME,
