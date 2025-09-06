@@ -128,7 +128,7 @@ pub trait PathExt: private::Sealed {
     /// platform.
     ///
     /// This method reverses [`shorten`] but may not return the original path.
-    /// Additional components may be shortened that were not before calling
+    /// Additional components may be expanded that were not before calling
     /// [`shorten`].
     ///
     /// # Implementation
