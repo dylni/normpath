@@ -28,5 +28,5 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        platform: [macos-latest, ubuntu-latest, windows-latest]
+        platform: [macos-latest, ubuntu-latest, windows-2022, windows-latest]
         version: [1.80.0, stable, beta, nightly]

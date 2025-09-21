@@ -81,16 +81,33 @@ fn test_local_device() {
     test!(r"\\.\X:\ABC\..\..\C:\", SAME, r"\\.\C:\");
     test!(r"\\.\pipe\mypipe\..\notmine", SAME, r"\\.\pipe\notmine");
 
-    test!(r"COM1", r"X:\ABC\COM1", r"\\.\COM1");
-    test!(r"X:\COM1", SAME, r"\\.\COM1");
-    test!(r"X:COM1", r"X:\ABC\COM1", r"\\.\COM1");
-    test!(r"valid\COM1", r"X:\ABC\valid\COM1", r"\\.\COM1");
-    test!(r"X:\notvalid\COM1", SAME, r"\\.\COM1");
-    test!(r"X:\COM1.blah", SAME, r"\\.\COM1");
-    test!(r"X:\COM1:blah", SAME, r"\\.\COM1");
-    test!(r"X:\COM1  .blah", SAME, r"\\.\COM1");
     test!(r"\\.\X:\COM1", SAME, SAME);
     test!(r"\\abc\xyz\COM1", SAME, SAME);
+
+    common::assert_eq(
+        Path::new(r"\\.\COM1"),
+        Path::new("COM1").normalize_virtually(),
+    );
+
+    #[normpath_macros::cfg_supports_joined_device_paths(true)]
+    macro_rules! test_joined {
+        ( $($token:tt)+ ) => {
+            test!($($token)+, r"\\.\COM1");
+        };
+    }
+    #[normpath_macros::cfg_supports_joined_device_paths(false)]
+    macro_rules! test_joined {
+        ( $($token:tt)+ ) => {
+            test!($($token)+, SAME);
+        };
+    }
+    test_joined!(r"X:\COM1", SAME);
+    test_joined!(r"X:COM1", r"X:\ABC\COM1");
+    test_joined!(r"valid\COM1", r"X:\ABC\valid\COM1");
+    test_joined!(r"X:\notvalid\COM1", SAME);
+    test_joined!(r"X:\COM1.blah", SAME);
+    test_joined!(r"X:\COM1:blah", SAME);
+    test_joined!(r"X:\COM1  .blah", SAME);
 }
 
 #[test]

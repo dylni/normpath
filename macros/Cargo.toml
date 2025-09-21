@@ -1,0 +1,19 @@
+[package]
+name = "normpath_macros"
+version.workspace = true
+authors = ["dylni"]
+edition.workspace = true
+rust-version.workspace = true
+description = """
+Procedural macros used by crate normpath
+"""
+readme = "description.md"
+repository.workspace = true
+license.workspace = true
+exclude = [".*", "tests.rs", "/rustfmt.toml", "/src/bin", "/tests"]
+
+[lib]
+proc-macro = true
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Wdk_System_SystemServices", "Win32_Foundation", "Win32_System_SystemInformation"] }
