@@ -24,7 +24,9 @@ pub(super) mod localize;
 
 macro_rules! static_assert {
     ( $condition:expr ) => {
-        const _: () = assert!($condition, "static assertion failed");
+        const {
+            assert!($condition, "static assertion failed");
+        }
     };
 }
 
