@@ -6,7 +6,7 @@ mod macos;
 
 #[cfg_attr(
     not(any(target_os = "ios", target_os = "macos")),
-    allow(unused_variables)
+    expect(unused_variables)
 )]
 pub(crate) fn name(path: &Path) -> Option<OsString> {
     // Only UTF-8 paths can be localized on MacOS.

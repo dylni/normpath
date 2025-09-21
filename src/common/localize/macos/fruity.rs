@@ -43,15 +43,15 @@ pub(super) mod objc {
     use std::os::raw::c_void;
     use std::ptr::NonNull;
 
-    #[allow(clippy::upper_case_acronyms)]
+    #[expect(clippy::upper_case_acronyms)]
     pub(super) type BOOL = c_char;
 
-    #[allow(clippy::upper_case_acronyms)]
+    #[expect(clippy::upper_case_acronyms)]
     pub(super) const NO: BOOL = 0;
 
     pub(in super::super) type NSUInteger = usize;
 
-    #[allow(clippy::upper_case_acronyms)]
+    #[expect(clippy::upper_case_acronyms)]
     #[repr(transparent)]
     pub(in super::super) struct SEL(NonNull<c_void>);
 
@@ -73,7 +73,7 @@ pub(super) mod objc {
         }
     }
 
-    #[allow(non_camel_case_types)]
+    #[expect(non_camel_case_types)]
     #[repr(transparent)]
     pub(in super::super) struct id(NonNull<Object>);
 
