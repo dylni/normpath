@@ -28,7 +28,7 @@ uniquote = { version = "4.0", optional = true }
 windows-sys = { version = "0.61", features = ["Win32_Storage_FileSystem"] }
 
 [dev-dependencies]
-bincode = "1.0"
+bincode = "3.0"
 tempfile = "3.0"
 
 [target.'cfg(windows)'.dev-dependencies]
