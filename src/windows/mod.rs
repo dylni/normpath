@@ -29,7 +29,7 @@ macro_rules! static_assert {
 }
 
 fn is_separator(byte: &u8) -> bool {
-    [b'/', b'\\'].contains(byte)
+    b"/\\".contains(byte)
 }
 
 pub(crate) fn is_base(path: &Path) -> bool {
