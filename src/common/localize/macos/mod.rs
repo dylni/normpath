@@ -58,13 +58,12 @@ impl NSString {
 
     unsafe fn to_str(&self) -> &str {
         let length = self.utf8_length();
-        // SAFETY: These bytes are encoded using UTF-8.
-        unsafe {
-            str::from_utf8_unchecked(slice::from_raw_parts(
-                self.to_utf8_ptr(),
-                length,
-            ))
+        let ptr = self.to_utf8_ptr();
+        if ptr.is_null() {
+            return "";
         }
+        // SAFETY: `ptr` is non-null and points to `length` UTF-8 encoded bytes.
+        unsafe { str::from_utf8_unchecked(slice::from_raw_parts(ptr, length)) }
     }
 }
 
@@ -89,15 +88,20 @@ impl NSFileManager {
 
     fn default() -> Self {
         extern "C" {
-            fn objc_msgSend(obj: &Class, sel: SEL) -> &Object;
+            fn objc_msgSend(obj: &Class, sel: SEL) -> Option<&Object>;
 
-            fn objc_retain(obj: &Object) -> NSFileManager;
+            fn objc_retain(obj: &Object) -> Option<NSFileManager>;
         }
 
         let obj = Self::class();
         let sel = selector!(defaultManager);
 
-        unsafe { objc_retain(objc_msgSend(obj, sel)) }
+        unsafe {
+            let mgr = objc_msgSend(obj, sel)
+                .expect("NSFileManager defaultManager returned nil");
+            objc_retain(mgr)
+                .expect("objc_retain returned nil for NSFileManager")
+        }
     }
 }
 
@@ -111,9 +115,13 @@ impl Deref for NSFileManager {
 
 pub(super) fn name(path: &str) -> String {
     extern "C" {
-        fn objc_msgSend(obj: &Object, sel: SEL, path: NSString) -> &Object;
+        fn objc_msgSend<'a>(
+            obj: &'a Object,
+            sel: SEL,
+            path: &'a Object,
+        ) -> Option<&'a Object>;
 
-        fn objc_retain(obj: &Object) -> NSString;
+        fn objc_retain(obj: &Object) -> Option<NSString>;
     }
 
     let obj = NSFileManager::default();
@@ -121,5 +129,11 @@ pub(super) fn name(path: &str) -> String {
     // SAFETY: This struct is dropped by the end of this method.
     let path = unsafe { NSString::from_str_no_copy(path) };
 
-    unsafe { objc_retain(objc_msgSend(&obj, sel, path)) }.to_string()
+    let display_name = unsafe {
+        let res = objc_msgSend(&obj, sel, &path)
+            .expect("displayNameAtPath: returned nil");
+        objc_retain(res)
+            .expect("objc_retain returned nil for displayNameAtPath:")
+    };
+    display_name.to_string()
 }

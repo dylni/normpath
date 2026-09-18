@@ -59,29 +59,28 @@ where
     let mut buffer = Vec::new();
     let mut capacity = 0;
     loop {
-        capacity = call_fn(buffer.as_mut_ptr(), capacity);
+        let passed_capacity = capacity;
+        capacity = call_fn(buffer.as_mut_ptr(), passed_capacity);
         if capacity == 0 {
             break Err(io::Error::last_os_error());
         }
 
         let length = u32_to_usize(capacity);
-        let Some(mut additional_capacity) =
-            length.checked_sub(buffer.capacity())
-        else {
+        if capacity < passed_capacity {
             // SAFETY: These characters were initialized by the syscall.
             unsafe {
                 buffer.set_len(length);
             }
             return Ok(buffer);
-        };
-        assert_ne!(0, additional_capacity);
+        }
 
         // WinAPI can recommend an insufficient capacity that causes it to
         // return incorrect results, so extra space is reserved as a
         // workaround.
         let extra_capacity = 2.min(capacity.not());
         capacity += extra_capacity;
-        additional_capacity += u32_to_usize(extra_capacity);
+        let additional_capacity =
+            u32_to_usize(capacity).saturating_sub(buffer.len());
 
         buffer.reserve(additional_capacity);
     }
