@@ -53,7 +53,9 @@ impl NSString {
 
         let sel = selector!(UTF8String);
 
-        unsafe { objc_msgSend(self, sel) }.cast()
+        let result = unsafe { objc_msgSend(self, sel) };
+        assert!(!result.is_null(), "`[NSString UTF8String]` returned null");
+        result.cast()
     }
 
     unsafe fn to_str(&self) -> &str {
@@ -111,7 +113,11 @@ impl Deref for NSFileManager {
 
 pub(super) fn name(path: &str) -> String {
     extern "C" {
-        fn objc_msgSend(obj: &Object, sel: SEL, path: NSString) -> &Object;
+        fn objc_msgSend<'a>(
+            obj: &Object,
+            sel: SEL,
+            path: &'a Object,
+        ) -> &'a Object;
 
         fn objc_retain(obj: &Object) -> NSString;
     }
@@ -121,5 +127,5 @@ pub(super) fn name(path: &str) -> String {
     // SAFETY: This struct is dropped by the end of this method.
     let path = unsafe { NSString::from_str_no_copy(path) };
 
-    unsafe { objc_retain(objc_msgSend(&obj, sel, path)) }.to_string()
+    unsafe { objc_retain(objc_msgSend(&obj, sel, &path)) }.to_string()
 }
