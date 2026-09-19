@@ -53,17 +53,20 @@ impl NSString {
 
         let sel = selector!(UTF8String);
 
-        unsafe { objc_msgSend(self, sel) }.cast()
+        let result = unsafe { objc_msgSend(self, sel) };
+        assert!(!result.is_null(), "`[NSString UTF8String]` returned null");
+        result.cast()
     }
 
     unsafe fn to_str(&self) -> &str {
         let length = self.utf8_length();
-        let ptr = self.to_utf8_ptr();
-        if ptr.is_null() {
-            return "";
+        // SAFETY: These bytes are encoded using UTF-8.
+        unsafe {
+            str::from_utf8_unchecked(slice::from_raw_parts(
+                self.to_utf8_ptr(),
+                length,
+            ))
         }
-        // SAFETY: `ptr` is non-null and points to `length` UTF-8 encoded bytes.
-        unsafe { str::from_utf8_unchecked(slice::from_raw_parts(ptr, length)) }
     }
 }
 
@@ -88,20 +91,15 @@ impl NSFileManager {
 
     fn default() -> Self {
         extern "C" {
-            fn objc_msgSend(obj: &Class, sel: SEL) -> Option<&Object>;
+            fn objc_msgSend(obj: &Class, sel: SEL) -> &Object;
 
-            fn objc_retain(obj: &Object) -> Option<NSFileManager>;
+            fn objc_retain(obj: &Object) -> NSFileManager;
         }
 
         let obj = Self::class();
         let sel = selector!(defaultManager);
 
-        unsafe {
-            let mgr = objc_msgSend(obj, sel)
-                .expect("NSFileManager defaultManager returned nil");
-            objc_retain(mgr)
-                .expect("objc_retain returned nil for NSFileManager")
-        }
+        unsafe { objc_retain(objc_msgSend(obj, sel)) }
     }
 }
 
@@ -116,12 +114,12 @@ impl Deref for NSFileManager {
 pub(super) fn name(path: &str) -> String {
     extern "C" {
         fn objc_msgSend<'a>(
-            obj: &'a Object,
+            obj: &Object,
             sel: SEL,
             path: &'a Object,
-        ) -> Option<&'a Object>;
+        ) -> &'a Object;
 
-        fn objc_retain(obj: &Object) -> Option<NSString>;
+        fn objc_retain(obj: &Object) -> NSString;
     }
 
     let obj = NSFileManager::default();
@@ -129,11 +127,5 @@ pub(super) fn name(path: &str) -> String {
     // SAFETY: This struct is dropped by the end of this method.
     let path = unsafe { NSString::from_str_no_copy(path) };
 
-    let display_name = unsafe {
-        let res = objc_msgSend(&obj, sel, &path)
-            .expect("displayNameAtPath: returned nil");
-        objc_retain(res)
-            .expect("objc_retain returned nil for displayNameAtPath:")
-    };
-    display_name.to_string()
+    unsafe { objc_retain(objc_msgSend(&obj, sel, &path)) }.to_string()
 }

@@ -57,30 +57,30 @@ where
     F: FnMut(*mut u16, u32) -> u32,
 {
     let mut buffer = Vec::new();
-    let mut capacity = 0;
     loop {
-        let passed_capacity = capacity;
-        capacity = call_fn(buffer.as_mut_ptr(), passed_capacity);
-        if capacity == 0 {
+        let capacity_u32: u32 =
+            buffer.capacity().try_into().unwrap_or(u32::MAX);
+        let length_u32 = call_fn(buffer.as_mut_ptr(), capacity_u32);
+        if length_u32 == 0 {
             break Err(io::Error::last_os_error());
         }
 
-        let length = u32_to_usize(capacity);
-        if capacity < passed_capacity {
+        let length = u32_to_usize(length_u32);
+        let Some(mut additional_capacity) =
+            length.checked_sub(u32_to_usize(capacity_u32))
+        else {
             // SAFETY: These characters were initialized by the syscall.
             unsafe {
                 buffer.set_len(length);
             }
             return Ok(buffer);
-        }
+        };
+        assert_ne!(0, additional_capacity);
 
         // WinAPI can recommend an insufficient capacity that causes it to
         // return incorrect results, so extra space is reserved as a
         // workaround.
-        let extra_capacity = 2.min(capacity.not());
-        capacity += extra_capacity;
-        let additional_capacity =
-            u32_to_usize(capacity).saturating_sub(buffer.len());
+        additional_capacity += u32_to_usize(2.min(length_u32.not()));
 
         buffer.reserve(additional_capacity);
     }
